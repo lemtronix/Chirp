@@ -1,0 +1,11 @@
+Display	KEYWORD1
+
+mainMenu	KEYWORD2
+resetDevice	KEYWORD2
+bootLoaderMode	KEYWORD2
+frequencyMenu	KEYWORD2
+amplitudeMenu	KEYWORD2
+phaseMenu	KEYWORD2
+outputOff	KEYWORD2
+outputOn	KEYWORD2
+invalidSelection	KEYWORD2
