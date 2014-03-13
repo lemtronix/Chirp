@@ -3,19 +3,19 @@
 
 DisplayClass Display;
 
-char buffer[32];
+// typedef char PROGMEM prog_char
+// #define PGM_P const prog_char *
+prog_char stringHelpMenu_1[] PROGMEM = "Chirp by Lemtronix, LLC.";
+prog_char stringHelpMenu_2[] PROGMEM = "------------------------------";
+prog_char stringHelpMenu_3[] PROGMEM = "?   Help Menu";
+prog_char stringHelpMenu_4[] PROGMEM = "#   Reset Device";
+prog_char stringHelpMenu_5[] PROGMEM = "$   Bootloader Mode";
+prog_char stringHelpMenu_6[] PROGMEM = "F   Set Frequency";
+prog_char stringHelpMenu_7[] PROGMEM = "A   Set Amplitude";
+prog_char stringHelpMenu_8[] PROGMEM = "P   Set Phase";
+prog_char stringHelpMenu_9[] PROGMEM = "O/o Turn output (o)ff or (O)n";
 
-char stringHelpMenu_1[] PROGMEM = "Chirp by Lemtronix, LLC.";
-char stringHelpMenu_2[] PROGMEM = "------------------------------";
-char stringHelpMenu_3[] PROGMEM = "?   Help Menu";
-char stringHelpMenu_4[] PROGMEM = "#   Reset Device";
-char stringHelpMenu_5[] PROGMEM = "$   Bootloader Mode";
-char stringHelpMenu_6[] PROGMEM = "F   Set Frequency";
-char stringHelpMenu_7[] PROGMEM = "A   Set Amplitude";
-char stringHelpMenu_8[] PROGMEM = "P   Phase Menu";
-char stringHelpMenu_9[] PROGMEM = "O/o Turn output (o)ff or (O)n";
-
-PGM_P helpMenu[] PROGMEM = 
+PROGMEM const char* helpMenu[] = 
 {
   stringHelpMenu_1,
   stringHelpMenu_2,
@@ -28,26 +28,19 @@ PGM_P helpMenu[] PROGMEM =
   stringHelpMenu_9
 };
 
-char stringTestMenu_1[] PROGMEM = "Test Menu:";
-char stringTestMenu_2[] PROGMEM = "------------------------------";
-char stringTestMenu_3[] PROGMEM = "s   SPI test";
-char stringTestMenu_4[] PROGMEM = "i   I2C test";
+prog_char stringTestMenu_1[] PROGMEM = "i   I2C test";
+prog_char stringTestMenu_2[] PROGMEM = "s   SPI test";
+prog_char stringTestMenu_3[] PROGMEM = "x   exit (no change)";
 
-PGM_P testMenu[] PROGMEM =
+PROGMEM const char* subMenuTest[] =
 {
   stringTestMenu_1,
   stringTestMenu_2,
-  stringTestMenu_3,
-  stringTestMenu_4
+  stringTestMenu_3
 };
 
-const char* testMenu2[] =
-{
-  "Test Menu",
-  "Line 1",
-  "Line 2",
-  "Line 3"
-};
+char buffer[32];
+
 DisplayClass::DisplayClass(void)
 { 
 }
@@ -62,7 +55,7 @@ void DisplayClass::mainMenu()
   Serial.println();
   for (byte row=0; row<9; row++)
   {
-    strcpy_P(buffer, (PGM_P)pgm_read_word(&(helpMenu[row])));
+    strcpy_P(buffer, (char*)pgm_read_word(&(helpMenu[row])));
     Serial.println(buffer);    // From data memory //Serial.println(helpMenu[row]);
   }
 }
@@ -70,17 +63,16 @@ void DisplayClass::mainMenu()
 void DisplayClass::testMenu()
 {
   Serial.println();
-  for (byte row=0; row<4; row++)
+  for (byte row=0; row<3; row++)
   {
-    //strcpy_P(buffer, (PGM_P)pgm_read_word(&(testMenu[row])));
-    //Serial.println(buffer);
-    Serial.println(testMenu2[row]);
+    strcpy_P(buffer, (char*)pgm_read_word(&(subMenuTest[row])));
+    Serial.println(buffer);    // From data memory //Serial.println(helpMenu[row]);
   }
 }
 
 void DisplayClass::resetDevice()
 {
-  Serial.println("Resetting Device");
+  Serial.println("Resetting the device");
 }
 void DisplayClass::bootLoaderMode()
 {
@@ -88,15 +80,15 @@ void DisplayClass::bootLoaderMode()
 }
 void DisplayClass::frequencyMenu()
 {
-  Serial.println("Frequency Menu");
+  Serial.println("Enter frequency in Hz {0 to 8000000}:");
 }
 void DisplayClass::amplitudeMenu()
 {
-  Serial.println("Amplitude Menu");
+  Serial.println("Enter an amplitude in mV {100 to 4000}:");
 }
 void DisplayClass::phaseMenu()
 {
-  Serial.println("Phase Menu");
+  Serial.println("Enter a phase angle in degrees {0 to 359}");
 }
 void DisplayClass::outputOff()
 {
