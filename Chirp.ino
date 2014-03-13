@@ -40,6 +40,11 @@ typedef struct
   boolean outputStatus;  //!< off or on
 } OUTPUT_T;
 
+struct
+{
+  // version
+  
+} chripObject;
 void setup()
 {
   // put your setup code here, to run once:
@@ -73,6 +78,10 @@ void loop()
       {
         Display.mainMenu();
       }
+      else if (strcmp(inputString, "@") == 0)
+      {
+        Display.displayVersionInfo();
+      }
       else if (strcmp(inputString, "#") == 0)
       {
         Display.resetDevice();
@@ -81,20 +90,40 @@ void loop()
       {
         Display.bootLoaderMode();
       }
-      else if (strcmp(inputString, "F") == 0)
+      else if (strcmp(inputString, "c1") == 0)
       {
-        Display.frequencyMenu();
+        Serial.println("Channel 1!");
+      }
+      else if (strcmp(inputString, "c2") == 0)
+      {
+        Serial.println("Channel 2!");
+      }
+      else if (strcmp(inputString, "c3") == 0)
+      {
+        Serial.println("Channel 3!");
+      }
+      else if (strcmp(inputString, "c4") == 0)
+      {
+        Serial.println("Channel 4!");
+      }
+      else if (strcmp(inputString, "c5") == 0)
+      {
+        Serial.println("Channel 5!");
+      }
+      else if (strcmp(inputString, "f") == 0)
+      {
         menuState = MENU_SUB_FREQUENCY;
+        Display.frequencyMenu();
       }
-      else if (strcmp(inputString, "A") == 0)
+      else if (strcmp(inputString, "a") == 0)
       {
-        Display.amplitudeMenu();
         menuState = MENU_SUB_AMPLITUDE;
+        Display.amplitudeMenu();
       }
-      else if (strcmp(inputString, "P") == 0)
+      else if (strcmp(inputString, "p") == 0)
       {
-        Display.phaseMenu();
         menuState = MENU_SUB_PHASE;
+        Display.phaseMenu();
       }
       else if (strcmp(inputString, "o") == 0)
       {
@@ -104,10 +133,13 @@ void loop()
       {
         Display.outputOn();
       }
-      else if (strcmp(inputString, "t") == 0)
+      else if (strcmp(inputString, "T1") == 0)
       {
-        Display.testMenu();
-        menuState = MENU_SUB_TEST;
+        Serial.println("I2C Test Pattern!");
+      }
+      else if (strcmp(inputString, "T2") == 0)
+      {
+        Serial.println("SPI Test Pattern!");
       }
       else
       {
@@ -115,16 +147,15 @@ void loop()
         Display.mainMenu();
         menuState = MENU_MAIN;
       }
-    }
+    } // IF
     else if (menuState == MENU_SUB_FREQUENCY)
     {
       if (strcmp(inputString, "w") == 0)
       {
-        Serial.println("You in are in the frequency menu");
+        Serial.println("FREQ!");
       }
       else if (strcmp(inputString, "x") == 0)
       {
-        Serial.println("Main Menu:");
         Display.mainMenu();
         menuState = MENU_MAIN;
       }
@@ -139,11 +170,10 @@ void loop()
     {
       if (strcmp(inputString, "w") == 0)
       {
-        Serial.println("You in are in the amplitude menu");
+        Serial.println("AMP!");
       }
       else if (strcmp(inputString, "x") == 0)
       {
-        Serial.println("Main Menu:");
         Display.mainMenu();
         menuState = MENU_MAIN;
       }
@@ -158,11 +188,10 @@ void loop()
     {
       if (strcmp(inputString, "w") == 0)
       {
-        Serial.println("You in are in the phase menu");
+        Serial.println("PHASE!");
       }
       else if (strcmp(inputString, "x") == 0)
       {
-        Serial.println("Main Menu:");
         Display.mainMenu();
         menuState = MENU_MAIN;
       }
@@ -170,33 +199,6 @@ void loop()
       {
         Display.invalidSelection();
         Display.mainMenu();
-      }
-    }
-    else if (menuState == MENU_SUB_TEST)
-    {
-      if (strcmp(inputString, "w") == 0)
-      {
-        Serial.println("Test menu, bro.");
-      }
-      else if (strcmp(inputString, "s") == 0)
-      {
-        Serial.println("SPI test activated!");
-      }
-      else if (strcmp(inputString, "i") == 0)
-      {
-        Serial.println("I2C test activated!");
-      }
-      else if (strcmp(inputString, "x") == 0)
-      {
-        Serial.println("Main Menu:");
-        Display.mainMenu();
-        menuState = MENU_MAIN;
-      }
-      else
-      {
-        Display.invalidSelection();
-        Display.mainMenu();
-        menuState = MENU_MAIN;
       }
     }
     
@@ -256,5 +258,3 @@ void serialEvent()
     }
   }
 }
-
-

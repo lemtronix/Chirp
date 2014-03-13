@@ -3,17 +3,23 @@
 
 DisplayClass Display;
 
-// typedef char PROGMEM prog_char
-// #define PGM_P const prog_char *
-prog_char stringHelpMenu_1[] PROGMEM = "Chirp by Lemtronix, LLC.";
-prog_char stringHelpMenu_2[] PROGMEM = "------------------------------";
-prog_char stringHelpMenu_3[] PROGMEM = "?   Help Menu";
-prog_char stringHelpMenu_4[] PROGMEM = "#   Reset Device";
-prog_char stringHelpMenu_5[] PROGMEM = "$   Bootloader Mode";
-prog_char stringHelpMenu_6[] PROGMEM = "F   Set Frequency";
-prog_char stringHelpMenu_7[] PROGMEM = "A   Set Amplitude";
-prog_char stringHelpMenu_8[] PROGMEM = "P   Set Phase";
-prog_char stringHelpMenu_9[] PROGMEM = "O/o Turn output (o)ff or (O)n";
+#define HELP_MENU_ROW_MAX  15
+
+const prog_char stringHelpMenu_1[] PROGMEM   = "Chirp by Lemtronix, LLC.";
+const prog_char stringHelpMenu_2[] PROGMEM   = "------------------------------";
+const prog_char stringHelpMenu_3[] PROGMEM   = "?   Help Menu";
+const prog_char stringHelpMenu_4[] PROGMEM   = "@   Version information";
+const prog_char stringHelpMenu_5[] PROGMEM   = "#   Reset Device";
+const prog_char stringHelpMenu_6[] PROGMEM   = "$   Bootloader Mode";
+const prog_char stringHelpMenu_7[] PROGMEM   = "c#  Select an output channel {1..5}";
+const prog_char stringHelpMenu_8[] PROGMEM   = "v#  View output channel settings {1..5}";
+const prog_char stringHelpMenu_9[] PROGMEM   = "s   Save output channel";
+const prog_char stringHelpMenu_10[] PROGMEM  = "f   Set Frequency";
+const prog_char stringHelpMenu_11[] PROGMEM  = "a   Set Amplitude";
+const prog_char stringHelpMenu_12[] PROGMEM  = "p   Set Phase";
+const prog_char stringHelpMenu_13[] PROGMEM  = "o/O Turn output (o)ff or (O)n";
+const prog_char stringHelpMenu_14[] PROGMEM  = "T1  Test I2C with generic pattern";
+const prog_char stringHelpMenu_15[] PROGMEM  = "T2  Test SPI with generic pattern";
 
 PROGMEM const char* helpMenu[] = 
 {
@@ -25,21 +31,16 @@ PROGMEM const char* helpMenu[] =
   stringHelpMenu_6,
   stringHelpMenu_7,
   stringHelpMenu_8,
-  stringHelpMenu_9
+  stringHelpMenu_9,
+  stringHelpMenu_10,
+  stringHelpMenu_11,
+  stringHelpMenu_12,
+  stringHelpMenu_13,
+  stringHelpMenu_14,
+  stringHelpMenu_15
 };
 
-prog_char stringTestMenu_1[] PROGMEM = "i   I2C test";
-prog_char stringTestMenu_2[] PROGMEM = "s   SPI test";
-prog_char stringTestMenu_3[] PROGMEM = "x   exit (no change)";
-
-PROGMEM const char* subMenuTest[] =
-{
-  stringTestMenu_1,
-  stringTestMenu_2,
-  stringTestMenu_3
-};
-
-char buffer[32];
+char buffer[48];
 
 DisplayClass::DisplayClass(void)
 { 
@@ -53,52 +54,59 @@ void DisplayClass::mainMenu()
 {
   // Display menu
   Serial.println();
-  for (byte row=0; row<9; row++)
+  for (byte row=0; row<HELP_MENU_ROW_MAX; row++)
   {
     strcpy_P(buffer, (char*)pgm_read_word(&(helpMenu[row])));
     Serial.println(buffer);    // From data memory //Serial.println(helpMenu[row]);
   }
 }
 
-void DisplayClass::testMenu()
-{
-  Serial.println();
-  for (byte row=0; row<3; row++)
-  {
-    strcpy_P(buffer, (char*)pgm_read_word(&(subMenuTest[row])));
-    Serial.println(buffer);    // From data memory //Serial.println(helpMenu[row]);
-  }
-}
-
 void DisplayClass::resetDevice()
 {
-  Serial.println("Resetting the device");
+  print_P(PSTR("Resetting the device"));
 }
 void DisplayClass::bootLoaderMode()
 {
-  Serial.println("Entering boot loader mode");
+  print_P(PSTR("Entering boot loader mode"));
 }
 void DisplayClass::frequencyMenu()
 {
-  Serial.println("Enter frequency in Hz {0 to 8000000}:");
+  print_P(PSTR("Enter frequency in Hz {0 to 8000000}:"));
 }
 void DisplayClass::amplitudeMenu()
 {
-  Serial.println("Enter an amplitude in mV {100 to 4000}:");
+  print_P(PSTR("Enter an amplitude in mV {100 to 4000}:"));
 }
 void DisplayClass::phaseMenu()
 {
-  Serial.println("Enter a phase angle in degrees {0 to 359}");
+  print_P(PSTR("Enter a phase angle in degrees {0 to 359}"));
 }
 void DisplayClass::outputOff()
 {
-  Serial.println("Output Off");
+  print_P(PSTR("Output Off"));
 }
 void DisplayClass::outputOn()
 {
-  Serial.println("Output On");
+  print_P(PSTR("Output On"));
+}
+void DisplayClass::displayVersionInfo()
+{
+  print_P(PSTR("Version ##.##"));
 }
 void DisplayClass::invalidSelection()
 {
-  Serial.println("Invalid Selection");
+  print_P(PSTR("Invalid Selection"));
+}
+
+void DisplayClass::print_P(const char* pstr)
+{
+  uint8_t val;
+  while (true)
+  {
+    val = pgm_read_byte(pstr);
+    if (!val) break;
+    Serial.write(val);
+    pstr++;
+  }
+  Serial.write("\n");
 }

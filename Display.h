@@ -17,8 +17,11 @@ class DisplayClass
     void phaseMenu();
     void outputOff();
     void outputOn();
+    void displayVersionInfo();
     void invalidSelection();
+
   private:
+    void print_P(const char*);
 };
 
 extern DisplayClass Display;
