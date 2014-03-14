@@ -21,6 +21,7 @@ class OutputChannelClass
   public:
     OutputChannelClass(unsigned char cNumber);
     ~OutputChannelClass();
+    unsigned char getChannelNumber(void);
     ERROR_MESSAGE_T setFrequencyHz(unsigned long);
     ERROR_MESSAGE_T setAmplitudeMV(unsigned int);
     ERROR_MESSAGE_T setPhaseDegrees(unsigned int);

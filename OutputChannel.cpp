@@ -13,6 +13,11 @@ OutputChannelClass::~OutputChannelClass()
 {
 }
 
+unsigned char OutputChannelClass::getChannelNumber(void)
+{
+  return channelNumber;
+}
+
 ERROR_MESSAGE_T OutputChannelClass::setFrequencyHz(unsigned long newFrequencyHz)
 {
   ERROR_MESSAGE_T error = ERROR_MESSAGE_UNKNOWN;

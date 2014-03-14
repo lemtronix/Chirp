@@ -1,5 +1,7 @@
 #include <string.h>
 #include "Display.h"
+#include "OutputChannel.h"
+//#include <stdlib>
 
 #define DEBUG
 
@@ -26,10 +28,21 @@ typedef enum
 
 MENU_STATE_T menuState;
 
+// Create 5 different outputchannels
+OutputChannelClass outputChannel1(1);
+OutputChannelClass outputChannel2(2);
+OutputChannelClass outputChannel3(3);
+OutputChannelClass outputChannel4(4);
+OutputChannelClass outputChannel5(5);
+  
 char inputString[MAX_STRING_LENGTH];
 byte stringLength = 0;
 boolean stringComplete = false;
+unsigned long userInputUL;
 
+char debugBuffer[8];
+
+OutputChannelClass* p_currentChannel;
 struct
 {
   // version
@@ -43,6 +56,9 @@ void setup()
   {
     // Wait here if something else is already using the serial connection
   }
+  
+  // Start with channel1 as the default channel
+  p_currentChannel = &outputChannel1;
   
   // Load the main menu by default
   menuState = MENU_MAIN;
@@ -83,37 +99,52 @@ void loop()
       else if (strcmp(inputString, "c1") == 0)
       {
         Serial.println("Channel 1!");
+        p_currentChannel = &outputChannel1;
       }
       else if (strcmp(inputString, "c2") == 0)
       {
         Serial.println("Channel 2!");
+        p_currentChannel = &outputChannel2;
       }
       else if (strcmp(inputString, "c3") == 0)
       {
         Serial.println("Channel 3!");
+        p_currentChannel = &outputChannel3;
       }
       else if (strcmp(inputString, "c4") == 0)
       {
         Serial.println("Channel 4!");
+        p_currentChannel = &outputChannel4;
       }
       else if (strcmp(inputString, "c5") == 0)
       {
         Serial.println("Channel 5!");
+        p_currentChannel = &outputChannel5;
+      }
+      else if (strcmp(inputString, "v") == 0)
+      {
+        Serial.print("Current channel is: ");
+        Serial.println(p_currentChannel->getChannelNumber());
+      }
+      else if (strcmp(inputString, "s") == 0)
+      {
+        Serial.print("Saving channel ");
+        Serial.println(p_currentChannel->getChannelNumber());
       }
       else if (strcmp(inputString, "f") == 0)
       {
-        menuState = MENU_SUB_FREQUENCY;
         Display.frequencyMenu();
+        menuState = MENU_SUB_FREQUENCY;
       }
       else if (strcmp(inputString, "a") == 0)
       {
-        menuState = MENU_SUB_AMPLITUDE;
         Display.amplitudeMenu();
+        menuState = MENU_SUB_AMPLITUDE;
       }
       else if (strcmp(inputString, "p") == 0)
       {
-        menuState = MENU_SUB_PHASE;
         Display.phaseMenu();
+        menuState = MENU_SUB_PHASE;
       }
       else if (strcmp(inputString, "o") == 0)
       {
@@ -140,20 +171,37 @@ void loop()
     } // IF
     else if (menuState == MENU_SUB_FREQUENCY)
     {
-      if (strcmp(inputString, "w") == 0)
+      if (strcmp(inputString, "x") == 0 || strcmp(inputString, "") == 0)
       {
-        Serial.println("FREQ!");
-      }
-      else if (strcmp(inputString, "x") == 0)
-      {
+        // Exit menu if an 'x' is sent or enter key only
         Display.mainMenu();
         menuState = MENU_MAIN;
       }
       else
       {
-        Display.invalidSelection();
-        Display.mainMenu();
-        menuState = MENU_MAIN;
+        // 1. Convert ascii to integer
+        userInputUL = (unsigned long)atol(inputString);
+        
+        // 2. pass the value to the output channel
+        if (p_currentChannel->setFrequencyHz(userInputUL))
+        {
+          //indicate ERROR and display retry message
+          Serial.println("An error has occurred, please try again");
+        }
+        else
+        {
+          // success
+          Serial.print("Channel ");
+          Serial.print(p_currentChannel->getChannelNumber());
+          Serial.print(" frequency is now ");
+          //Serial.println(p_currentChannel->getFrequency());
+          Serial.println(userInputUL);
+          menuState = MENU_MAIN;
+        }
+                
+        //Display.invalidSelection();
+        //Display.mainMenu();
+        //menuState = MENU_MAIN;
       }
     }
     else if (menuState == MENU_SUB_AMPLITUDE)
@@ -192,7 +240,8 @@ void loop()
       }
     }
     
-    Serial.println(">");
+    Serial.print(">");
+    
     // Clear the string and reset the counters
     memset(&inputString, ASCII_NUL, MAX_STRING_LENGTH);
     stringLength = 0;
@@ -248,3 +297,7 @@ void serialEvent()
     }
   }
 }
+
+// My notes
+// DEBUG OUTPUT: ltoa(userInputUL, debugBuffer, 10);
+// Serial.println(debugBuffer);
