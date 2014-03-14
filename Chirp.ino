@@ -30,16 +30,6 @@ char inputString[MAX_STRING_LENGTH];
 byte stringLength = 0;
 boolean stringComplete = false;
 
-/// \brief object for storing information about an output channel
-typedef struct
-{
-  unsigned char channelNumber; //!< channel number {1..5}
-  unsigned long frequencyHz;   //!< frequency in hz {1..8MHz}
-  unsigned int amplitudeMV;   //!< magnitude of output in mV {100..4000mV}
-  unsigned int phaseDegrees;  //!< phase angle {0..359degrees}
-  boolean outputStatus;  //!< off or on
-} OUTPUT_T;
-
 struct
 {
   // version
