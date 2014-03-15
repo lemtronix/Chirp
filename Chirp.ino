@@ -3,7 +3,7 @@
 #include "OutputChannel.h"
 //#include <stdlib>
 
-#define DEBUG
+//#define DEBUG
 
 #define ASCII_NUL      0x00
 #define ASCII_BEL      0x07
@@ -40,7 +40,9 @@ byte stringLength = 0;
 boolean stringComplete = false;
 unsigned long userInputUL;
 
+#ifdef DEBUG
 char debugBuffer[8];
+#endif
 
 OutputChannelClass* p_currentChannel;
 struct
@@ -98,27 +100,37 @@ void loop()
       }
       else if (strcmp(inputString, "c1") == 0)
       {
+#ifdef DEBUG
         Serial.println("Channel 1!");
+#endif
         p_currentChannel = &outputChannel1;
       }
       else if (strcmp(inputString, "c2") == 0)
       {
+#ifdef DEBUG
         Serial.println("Channel 2!");
+#endif
         p_currentChannel = &outputChannel2;
       }
       else if (strcmp(inputString, "c3") == 0)
       {
+#ifdef DEBUG
         Serial.println("Channel 3!");
+#endif
         p_currentChannel = &outputChannel3;
       }
       else if (strcmp(inputString, "c4") == 0)
       {
+#ifdef DEBUG
         Serial.println("Channel 4!");
+#endif
         p_currentChannel = &outputChannel4;
       }
       else if (strcmp(inputString, "c5") == 0)
       {
+#ifdef DEBUG
         Serial.println("Channel 5!");
+#endif        
         p_currentChannel = &outputChannel5;
       }
       else if (strcmp(inputString, "v") == 0)
@@ -148,10 +160,12 @@ void loop()
       }
       else if (strcmp(inputString, "o") == 0)
       {
+        p_currentChannel->setOutputStatus(OFF);
         Display.outputOff();
       }
       else if (strcmp(inputString, "O") == 0)
       {
+        p_currentChannel->setOutputStatus(ON);
         Display.outputOn();
       }
       else if (strcmp(inputString, "T1") == 0)
@@ -190,56 +204,92 @@ void loop()
         }
         else
         {
-          // success
+          // success, frequency is already set
+#ifdef DEBUG
           Serial.print("Channel ");
           Serial.print(p_currentChannel->getChannelNumber());
           Serial.print(" frequency is now ");
-          //Serial.println(p_currentChannel->getFrequency());
-          Serial.println(userInputUL);
+          Serial.println(p_currentChannel->getFrequencyHz());
+#endif
           menuState = MENU_MAIN;
         }
-                
-        //Display.invalidSelection();
-        //Display.mainMenu();
-        //menuState = MENU_MAIN;
       }
     }
     else if (menuState == MENU_SUB_AMPLITUDE)
     {
-      if (strcmp(inputString, "w") == 0)
+      if (strcmp(inputString, "x") == 0 || strcmp(inputString, "") == 0)
       {
-        Serial.println("AMP!");
-      }
-      else if (strcmp(inputString, "x") == 0)
-      {
+        // Exit menu if an 'x' is sent or enter key only
         Display.mainMenu();
         menuState = MENU_MAIN;
       }
       else
       {
-        Display.invalidSelection();
-        Display.mainMenu();
-        menuState = MENU_MAIN;
+        // 1. Convert ascii to integer
+        userInputUL = (unsigned long)atol(inputString);
+        
+        // 2. pass the value to the output channel
+        if (p_currentChannel->setAmplitudeMV(userInputUL))
+        {
+          //indicate ERROR and display retry message
+          Serial.println("An error has occurred, please try again");
+        }
+        else
+        {
+          // success, amplitude is already set
+#ifdef DEBUG
+          Serial.print("Channel ");
+          Serial.print(p_currentChannel->getChannelNumber());
+          Serial.print(" amplitude is now ");
+          Serial.println(p_currentChannel->getAmplitudeMV());
+#endif
+          menuState = MENU_MAIN;
+        }
       }
     }
     else if (menuState == MENU_SUB_PHASE)
     {
-      if (strcmp(inputString, "w") == 0)
+      if (strcmp(inputString, "x") == 0 || strcmp(inputString, "") == 0)
       {
-        Serial.println("PHASE!");
-      }
-      else if (strcmp(inputString, "x") == 0)
-      {
+        // Exit menu if an 'x' is sent or enter key only
         Display.mainMenu();
         menuState = MENU_MAIN;
       }
       else
       {
-        Display.invalidSelection();
-        Display.mainMenu();
+        // 1. Convert ascii to integer
+        userInputUL = (unsigned int)atoi(inputString);
+        
+        // 2. pass the value to the output channel
+        if (p_currentChannel->setPhaseDegrees(userInputUL))
+        {
+          //indicate ERROR and display retry message
+          Serial.println("An error has occurred, please try again");
+        }
+        else
+        {
+          // success
+#ifdef DEBUG
+          Serial.print("Channel ");
+          Serial.print(p_currentChannel->getChannelNumber());
+          Serial.print(" phase is now ");
+          Serial.println(p_currentChannel->getPhaseDegrees());
+#endif
+          menuState = MENU_MAIN;
+        }
       }
     }
     
+    // Print the command prompt
+    Serial.print("c");
+    Serial.print(p_currentChannel->getChannelNumber());
+    Serial.print("freq");
+    Serial.print(p_currentChannel->getFrequencyHz());
+    Serial.print("amp");
+    Serial.print(p_currentChannel->getAmplitudeMV());
+    Serial.print("phase");
+    Serial.print(p_currentChannel->getPhaseDegrees());
+    p_currentChannel->getOutputStatus() == 1 ? Serial.print("on") : Serial.print("off");
     Serial.print(">");
     
     // Clear the string and reset the counters

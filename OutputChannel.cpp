@@ -17,6 +17,22 @@ unsigned char OutputChannelClass::getChannelNumber(void)
 {
   return channelNumber;
 }
+unsigned long OutputChannelClass::getFrequencyHz(void)
+{
+  return frequencyHz;
+}
+unsigned int OutputChannelClass::getAmplitudeMV(void)
+{
+  return amplitudeMV;
+}
+unsigned int OutputChannelClass::getPhaseDegrees(void)
+{
+  return phaseDegrees;
+}
+boolean OutputChannelClass::getOutputStatus(void)
+{
+  return outputStatus;
+}
 
 ERROR_MESSAGE_T OutputChannelClass::setFrequencyHz(unsigned long newFrequencyHz)
 {
