@@ -164,11 +164,13 @@ void loop()
       else if (strcmp(inputString, "o") == 0)
       {
         p_currentChannel->setOutputStatus(OFF);
+        DDS.setOutput(DDS_OFF);
         Display.outputOff();
       }
       else if (strcmp(inputString, "O") == 0)
       {
         p_currentChannel->setOutputStatus(ON);
+        DDS.setOutput(DDS_ON);
         Display.outputOn();
       }
       else if (strcmp(inputString, "T1") == 0)
@@ -214,6 +216,7 @@ void loop()
           Serial.print(" frequency is now ");
           Serial.println(p_currentChannel->getFrequencyHz());
 #endif
+          DDS.sendPhase(p_currentChannel->getFrequencyHz());
           menuState = MENU_MAIN;
         }
       }
@@ -246,6 +249,7 @@ void loop()
           Serial.print(" amplitude is now ");
           Serial.println(p_currentChannel->getAmplitudeMV());
 #endif
+          DDS.sendPhase(p_currentChannel->getAmplitudeMV());
           menuState = MENU_MAIN;
         }
       }
@@ -278,6 +282,7 @@ void loop()
           Serial.print(" phase is now ");
           Serial.println(p_currentChannel->getPhaseDegrees());
 #endif
+          DDS.sendPhase(p_currentChannel->getPhaseDegrees());
           menuState = MENU_MAIN;
         }
       }

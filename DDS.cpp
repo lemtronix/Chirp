@@ -69,6 +69,9 @@ void DDSClass::sendFrequency(unsigned long newFrequency)
   uint16_t frequencyLSB = 0;
   uint16_t frequencyMSB = 0;
   
+  // Turn output off while changing phase register
+  setOutput(DDS_OFF);
+  
   // Calculation is 2^28/F_MCLK * FREQ = FREQ_REG
   // 2^28/F_MCLK = 16.777216, but instead of dealing with floating point, we'll calculate using 168 and divide by 1000
   // this method equates to about a 0.135% error
@@ -90,12 +93,18 @@ void DDSClass::sendFrequency(unsigned long newFrequency)
   // Write 14-bits of MSB 
   SPI.transfer(frequencyMSB>>8);
   SPI.transfer(frequencyMSB);
+  
+  setOutput(DDS_ON);
 }
 
 void DDSClass::sendPhase(unsigned int newPhase)
 {
   uint32_t phaseCalculation = 0;
   uint16_t phaseRegister = 0;
+  
+  // Turn output off while changing phase register
+  setOutput(DDS_OFF);
+  
   // Calculation is 4096/360 * PHASE = PHASE_REG
   // 4096/360 = 11.37777, but we'll use 11378 and divide by 1000 for an error of 0.002%
   phaseCalculation = (11378 * newPhase) / 1000;
@@ -107,6 +116,8 @@ void DDSClass::sendPhase(unsigned int newPhase)
   
   SPI.transfer(phaseRegister>>8); // MSB first
   SPI.transfer(phaseRegister);    // LSB next
+  
+  setOutput(DDS_ON);
 }
 
 void DDSClass::setOutputMode(ddsMode_t newOutputWave)
