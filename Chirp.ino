@@ -1,7 +1,9 @@
 #include <string.h>
+#include <SPI.h> // used in DDS.cpp
 #include "Display.h"
 #include "OutputChannel.h"
-//#include <stdlib>
+#include "DDS.h"
+//#include <stdlib> // used with atoi, atol
 
 //#define DEBUG
 
@@ -93,6 +95,7 @@ void loop()
       else if (strcmp(inputString, "#") == 0)
       {
         Display.resetDevice();
+        DDS.reset();
       }
       else if (strcmp(inputString, "$") == 0)
       {
