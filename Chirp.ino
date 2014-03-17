@@ -2,10 +2,10 @@
 #include <SPI.h> // used in DDS.cpp
 #include "Display.h"
 #include "OutputChannel.h"
-#include "DDS.h"
+#include "DDS.h" // used by OutputChannel.cpp
 //#include <stdlib> // used with atoi, atol
 
-//#define DEBUG
+#define DEBUG
 
 #define ASCII_NUL      0x00
 #define ASCII_BEL      0x07
@@ -103,6 +103,7 @@ void loop()
       }
       else if (strcmp(inputString, "c1") == 0)
       {
+        /// \todo enhancement: Instead of having a specific else if statement for selecting a channel, convert the second character to select the channel using a switch statement
 #ifdef DEBUG
         Serial.println("Channel 1!");
 #endif
@@ -164,13 +165,11 @@ void loop()
       else if (strcmp(inputString, "o") == 0)
       {
         p_currentChannel->setOutputStatus(OFF);
-        DDS.setOutput(DDS_OFF);
         Display.outputOff();
       }
       else if (strcmp(inputString, "O") == 0)
       {
         p_currentChannel->setOutputStatus(ON);
-        DDS.setOutput(DDS_ON);
         Display.outputOn();
       }
       else if (strcmp(inputString, "T1") == 0)
@@ -210,13 +209,6 @@ void loop()
         else
         {
           // success, frequency is already set
-#ifdef DEBUG
-          Serial.print("Channel ");
-          Serial.print(p_currentChannel->getChannelNumber());
-          Serial.print(" frequency is now ");
-          Serial.println(p_currentChannel->getFrequencyHz());
-#endif
-          DDS.sendPhase(p_currentChannel->getFrequencyHz());
           menuState = MENU_MAIN;
         }
       }
@@ -249,7 +241,7 @@ void loop()
           Serial.print(" amplitude is now ");
           Serial.println(p_currentChannel->getAmplitudeMV());
 #endif
-          DDS.sendPhase(p_currentChannel->getAmplitudeMV());
+          // @todo create RPOT.sendAmplitude() function
           menuState = MENU_MAIN;
         }
       }
@@ -282,7 +274,6 @@ void loop()
           Serial.print(" phase is now ");
           Serial.println(p_currentChannel->getPhaseDegrees());
 #endif
-          DDS.sendPhase(p_currentChannel->getPhaseDegrees());
           menuState = MENU_MAIN;
         }
       }

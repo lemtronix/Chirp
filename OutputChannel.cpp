@@ -1,4 +1,5 @@
 #include "OutputChannel.h"
+#include "DDS.h" // used by OutputChannel.cpp
 
 OutputChannelClass::OutputChannelClass(unsigned char cNumber)
 {
@@ -41,6 +42,14 @@ ERROR_MESSAGE_T OutputChannelClass::setFrequencyHz(unsigned long newFrequencyHz)
   if (newFrequencyHz <= 8000000)
   {
     frequencyHz = newFrequencyHz;
+    // @todo Turn output off while changing phase or frequency register
+    DDS.setOutput(DDS_OFF);
+    
+    // Set the new frequency
+    DDS.sendFrequency(newFrequencyHz);
+    
+    // Turn the output back on if it was previous enabled
+    outputStatus == ON ? DDS.setOutput(DDS_ON) : DDS.setOutput(DDS_OFF);
     error = SUCCESS;
   }
   else if (newFrequencyHz > 8000000)
@@ -81,6 +90,15 @@ ERROR_MESSAGE_T OutputChannelClass::setPhaseDegrees(unsigned int newPhaseDegrees
   if (newPhaseDegrees <= 360)
   {
     phaseDegrees = newPhaseDegrees;
+    // @todo Turn output off while changing phase or frequency register
+    DDS.setOutput(DDS_OFF);
+    
+    // Set the phase
+    DDS.sendPhase(newPhaseDegrees);
+    
+    // Turn the output back on if it was previous enabled
+    outputStatus == ON ? DDS.setOutput(DDS_ON) : DDS.setOutput(DDS_OFF);
+    
     error = SUCCESS;
   }
   else if (newPhaseDegrees > 360)
@@ -99,10 +117,12 @@ ERROR_MESSAGE_T OutputChannelClass::setOutputStatus(boolean newOutputStatus)
   if (newOutputStatus == ON)
   {
     outputStatus = ON;
+    DDS.setOutput(DDS_ON);
   }
   else if (newOutputStatus == OFF)
   {
     outputStatus = OFF;
+    DDS.setOutput(DDS_OFF);
   }
   else
   {
