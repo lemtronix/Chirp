@@ -1,11 +1,13 @@
 #include <string.h>
 #include <SPI.h> // used in DDS.cpp
+#include <Wire.h> // used in Rpot.cpp
 #include "Display.h"
 #include "OutputChannel.h"
 #include "DDS.h" // used by OutputChannel.cpp
+#include "Rpot.h" // used by OutputChannel.cpp
 //#include <stdlib> // used with atoi, atol
-
-#define DEBUG
+#include "Debug.h"
+#define DEBUG_OUTPUT 1
 
 #define ASCII_NUL      0x00
 #define ASCII_BEL      0x07
@@ -32,26 +34,27 @@ MENU_STATE_T menuState;
 
 // Create 5 different outputchannels
 OutputChannelClass outputChannel1(1);
-OutputChannelClass outputChannel2(2);
-OutputChannelClass outputChannel3(3);
-OutputChannelClass outputChannel4(4);
-OutputChannelClass outputChannel5(5);
-  
+
+#ifdef MULTICHANNEL
+  OutputChannelClass outputChannel2(2);
+  OutputChannelClass outputChannel3(3);
+  OutputChannelClass outputChannel4(4);
+  OutputChannelClass outputChannel5(5);
+#endif // MULTICHANNEL
+
 char inputString[MAX_STRING_LENGTH];
 byte stringLength = 0;
 boolean stringComplete = false;
 unsigned long userInputUL;
 
-#ifdef DEBUG
-char debugBuffer[8];
-#endif
-
 OutputChannelClass* p_currentChannel;
+
 struct
 {
   // version
-  
 } chripObject;
+
+
 void setup()
 {
   // put your setup code here, to run once:
@@ -67,6 +70,9 @@ void setup()
   // Load the main menu by default
   menuState = MENU_MAIN;
   // Display.mainMenu(); // Could display mainMenu here
+  
+  // This only needs to be called once, even if there are more than one output channel
+  p_currentChannel->init();
 }
 
 void loop()
@@ -75,12 +81,8 @@ void loop()
   if (stringComplete == true)
   {
     // Only executes this when a new string is received from the terminal
-#ifdef DEBUG
-    Serial.print("\nCommand Received: ");
-    Serial.println(inputString);
-#else
-    Serial.println();
-#endif
+    DEBUGLN("\nCommand Received: ");
+    DEBUG(inputString);
 
     if (menuState == MENU_MAIN)
     {
@@ -104,39 +106,31 @@ void loop()
       else if (strcmp(inputString, "c1") == 0)
       {
         /// \todo enhancement: Instead of having a specific else if statement for selecting a channel, convert the second character to select the channel using a switch statement
-#ifdef DEBUG
-        Serial.println("Channel 1!");
-#endif
+        DEBUGLN("Channel 1!");
         p_currentChannel = &outputChannel1;
       }
+#ifdef MULTICHANNEL
       else if (strcmp(inputString, "c2") == 0)
       {
-#ifdef DEBUG
-        Serial.println("Channel 2!");
-#endif
+        DEBUGLN("Channel 2!");
         p_currentChannel = &outputChannel2;
       }
       else if (strcmp(inputString, "c3") == 0)
       {
-#ifdef DEBUG
-        Serial.println("Channel 3!");
-#endif
+        DEBUGNL("Channel 3!");
         p_currentChannel = &outputChannel3;
       }
       else if (strcmp(inputString, "c4") == 0)
       {
-#ifdef DEBUG
-        Serial.println("Channel 4!");
-#endif
+        DEBUGLN("Channel 4!");
         p_currentChannel = &outputChannel4;
       }
       else if (strcmp(inputString, "c5") == 0)
       {
-#ifdef DEBUG
-        Serial.println("Channel 5!");
-#endif        
+        DEBUGLN("Channel 5!");    
         p_currentChannel = &outputChannel5;
       }
+#endif // MULTICHANNEL
       else if (strcmp(inputString, "v") == 0)
       {
         Serial.print("Current channel is: ");
@@ -235,12 +229,10 @@ void loop()
         else
         {
           // success, amplitude is already set
-#ifdef DEBUG
-          Serial.print("Channel ");
-          Serial.print(p_currentChannel->getChannelNumber());
-          Serial.print(" amplitude is now ");
-          Serial.println(p_currentChannel->getAmplitudeMV());
-#endif
+          DEBUG("Channel ");
+          DEBUG(p_currentChannel->getChannelNumber());
+          DEBUG(" amplitude is now ");
+          DEBUGLN(p_currentChannel->getAmplitudeMV());
           // @todo create RPOT.sendAmplitude() function
           menuState = MENU_MAIN;
         }
@@ -268,12 +260,11 @@ void loop()
         else
         {
           // success
-#ifdef DEBUG
-          Serial.print("Channel ");
-          Serial.print(p_currentChannel->getChannelNumber());
-          Serial.print(" phase is now ");
-          Serial.println(p_currentChannel->getPhaseDegrees());
-#endif
+          DEBUG("Channel ");
+          DEBUG(p_currentChannel->getChannelNumber());
+          DEBUG(" phase is now ");
+          DEBUGLN(p_currentChannel->getPhaseDegrees());
+
           menuState = MENU_MAIN;
         }
       }
@@ -288,7 +279,7 @@ void loop()
     Serial.print(p_currentChannel->getAmplitudeMV());
     Serial.print("phase");
     Serial.print(p_currentChannel->getPhaseDegrees());
-    p_currentChannel->getOutputStatus() == 1 ? Serial.print("on") : Serial.print("off");
+    p_currentChannel->getOutputStatus() == ON ? Serial.print("on") : Serial.print("off");
     Serial.print(">");
     
     // Clear the string and reset the counters
@@ -347,6 +338,8 @@ void serialEvent()
   }
 }
 
-// My notes
+// Debug Notes
+// char debugBuffer[8];
 // DEBUG OUTPUT: ltoa(userInputUL, debugBuffer, 10);
 // Serial.println(debugBuffer);
+

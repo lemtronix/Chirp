@@ -20,15 +20,17 @@ class DDSClass
   public:
     DDSClass();
     ~DDSClass();
-    void reset(void);
+    void init();
+    void reset();
     void sendFrequency(unsigned long);
     void sendPhase(unsigned int);
     void setOutputMode(ddsMode_t);
     void setOutput(ddsOutput_t);
   private:
-    void sendControlRegister(void);
+    void sendControlRegister();
 };
 
 extern DDSClass DDS;
 
 #endif DDS_h
+

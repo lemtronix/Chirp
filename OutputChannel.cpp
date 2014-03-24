@@ -1,5 +1,6 @@
 #include "OutputChannel.h"
 #include "DDS.h" // used by OutputChannel.cpp
+#include "Rpot.h" // used by OutputChannel.cpp
 
 OutputChannelClass::OutputChannelClass(unsigned char cNumber)
 {
@@ -12,6 +13,12 @@ OutputChannelClass::OutputChannelClass(unsigned char cNumber)
 
 OutputChannelClass::~OutputChannelClass()
 {
+}
+
+void OutputChannelClass::init(void)
+{
+  DDS.init();
+  RPOT.init();
 }
 
 unsigned char OutputChannelClass::getChannelNumber(void)
@@ -130,3 +137,4 @@ ERROR_MESSAGE_T OutputChannelClass::setOutputStatus(boolean newOutputStatus)
   }
   return error;
 }
+

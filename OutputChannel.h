@@ -21,6 +21,7 @@ class OutputChannelClass
   public:
     OutputChannelClass(unsigned char cNumber);
     ~OutputChannelClass();
+    void init(void);
     unsigned char getChannelNumber(void);
     unsigned long getFrequencyHz(void);
     unsigned int getAmplitudeMV(void);
@@ -32,10 +33,11 @@ class OutputChannelClass
     ERROR_MESSAGE_T setOutputStatus(boolean);
   private:
     unsigned char channelNumber; //!< channel number {1..5}
-    unsigned long frequencyHz;   //!< frequency in hz {1..8MHz}
+    unsigned long frequencyHz;   //!< frequency in hz {0..8MHz}
     unsigned int amplitudeMV;    //!< magnitude of output in mV {100..4000mV}
     unsigned int phaseDegrees;   //!< phase angle {0..359degrees}
     boolean outputStatus;        //!< off or on
 };
 
 #endif
+
