@@ -81,8 +81,8 @@ void loop()
   if (stringComplete == true)
   {
     // Only executes this when a new string is received from the terminal
-    DEBUGLN("\nCommand Received: ");
-    DEBUG(inputString);
+    DEBUG("\nCommand Received: ");
+    DEBUGLN(inputString);
 
     if (menuState == MENU_MAIN)
     {
@@ -166,13 +166,25 @@ void loop()
         p_currentChannel->setOutputStatus(ON);
         Display.outputOn();
       }
-      else if (strcmp(inputString, "T1") == 0)
+      else if (strcmp(inputString, "ms") == 0)
       {
-        Serial.println("I2C Test Pattern!");
+        Serial.println("Chirp sine");
+        DDS.setOutputMode(DDS_MODE_SINE);
       }
-      else if (strcmp(inputString, "T2") == 0)
+      else if (strcmp(inputString, "mt") == 0)
       {
-        Serial.println("SPI Test Pattern!");
+        Serial.println("Chirp triangle");
+        DDS.setOutputMode(DDS_MODE_TRIANGLE);
+      }
+      else if (strcmp(inputString, "msq") == 0)
+      {
+        Serial.println("Chirp square");
+        DDS.setOutputMode(DDS_MODE_SQUARE);
+      }
+      else if (strcmp(inputString, "msq2") == 0)
+      {
+        Serial.println("Chirp square div2");
+        DDS.setOutputMode(DDS_MODE_SQUARE_DIV2);
       }
       else
       {

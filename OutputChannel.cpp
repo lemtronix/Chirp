@@ -50,13 +50,13 @@ ERROR_MESSAGE_T OutputChannelClass::setFrequencyHz(unsigned long newFrequencyHz)
   {
     frequencyHz = newFrequencyHz;
     // @todo Turn output off while changing phase or frequency register
-    DDS.setOutput(DDS_OFF);
+    //DDS.setOutput(DDS_OFF);
     
     // Set the new frequency
     DDS.sendFrequency(newFrequencyHz);
     
     // Turn the output back on if it was previous enabled
-    outputStatus == ON ? DDS.setOutput(DDS_ON) : DDS.setOutput(DDS_OFF);
+    //outputStatus == ON ? DDS.setOutput(DDS_ON) : DDS.setOutput(DDS_OFF);
     error = SUCCESS;
   }
   else if (newFrequencyHz > 8000000)

@@ -9,42 +9,43 @@ const int slaveSelectPin = 10;
 
 // Defines that allows for easy bit shifting when writing to dds chip using single write
 /// \todo Are using the defines for DDS every used?
-#define D15
-#define D14
-#define B28
-#define HLB
-#define FSEL
-#define PSEL
-#define SLEEP1
-#define SLEEP2
-#define OPBITEN
-#define DIV2
-#define MODE
+#define D15        15
+#define D14        14
+#define B28        13
+#define HLB        12
+#define FSEL       11
+#define PSEL       10
+#define RESET      8
+#define SLEEP1     7
+#define SLEEP2     6
+#define OPBITEN    5
+#define DIV2       3
+#define MODE       1
 
 /// Control Register used on several common Analog Devices DDS chips such as AD9834 and AD9837
 /// \todo did not compile when resv bits declared const
-typedef struct
+typedef struct __attribute__ ((packed))
 {
-  uint8_t d15         :1;    //!< D15 and D14 functions are handled in the sendFrequency and sendPhase functions, do not manually change them!
-  uint8_t d14         :1;    //!< do not change this bit! \todo figure out how to make them const
-  uint8_t b28         :1;    //!< loads frequency register is two consecutive writes, LSB first. B28=0 is individual
-  uint8_t hlb         :1;    //!< determines if a write to frequency register is LSB or MSB when B28=0. HLB=1 is MSB
-  uint8_t fsel        :1;    //!< frequency select bit.  FSEL=0 selects FREQ0
-  uint8_t psel        :1;    //!< phase select bit. PSEL=0 selects PHASE0
-  uint8_t resv9       :1;
-  uint8_t reset       :1;    //!< corresponds to an analog output of midscale
-  uint8_t sleep1      :1;    //!< disables the internal MCLK, but DAC output remains at present value
-  uint8_t sleep12     :1;    //!< powers down the on-chip DAC, useful when the DDS is used to output the MSB of the DAC data
-  uint8_t opbiten     :1;    //!< selects square wave, OPBITEN=0 allows for sine or triangle
-  uint8_t resv4       :1;
-  uint8_t div2        :1;    //!< when OPBITEN is set, this corresponds to the square wave frequency.  DIV2=0 is MSB/2
-  uint8_t resv2       :1;
-  uint8_t mode        :1;    //!< selects between sine (MODE=0) and triangle wave (MODE=1)
   uint8_t resv0       :1;
+  uint8_t mode        :1;    //!< selects between sine (MODE=0) and triangle wave (MODE=1)
+  uint8_t resv2       :1;
+  uint8_t div2        :1;    //!< when OPBITEN is set, this corresponds to the square wave frequency.  DIV2=0 is MSB/2
+  uint8_t resv4       :1;
+  uint8_t opbiten     :1;    //!< selects square wave, OPBITEN=0 allows for sine or triangle
+  uint8_t sleep12     :1;    //!< powers down the on-chip DAC, useful when the DDS is used to output the MSB of the DAC data
+  uint8_t sleep1      :1;    //!< disables the internal MCLK, but DAC output remains at present value
+  uint8_t reset       :1;    //!< corresponds to an analog output of midscale
+  uint8_t resv9       :1;
+  uint8_t psel        :1;    //!< phase select bit. PSEL=0 selects PHASE0
+  uint8_t fsel        :1;    //!< frequency select bit.  FSEL=0 selects FREQ0
+  uint8_t hlb         :1;    //!< determines if a write to frequency register is LSB or MSB when B28=0. HLB=1 is MSB
+  uint8_t b28         :1;    //!< loads frequency register is two consecutive writes, LSB first. B28=0 is individual
+  uint8_t d14         :1;    //!< do not change this bit! \todo figure out how to make them const
+  uint8_t d15         :1;    //!< D15 and D14 functions are handled in the sendFrequency and sendPhase functions, do not manually change them!
 } ddsControlRegisterBits_t;
 
 /// Provides the option to access the DDS control register directly or through individual bits
-static union
+union
 {
   uint16_t controlRegister;
   ddsControlRegisterBits_t bits;
@@ -117,14 +118,16 @@ void DDSClass::sendFrequency(unsigned long newFrequency)
   DEBUGLN(frequencyMSB, BIN);
   
   // Write 14-bits of LSB
+  digitalWrite(slaveSelectPin, LOW);
   SPI.transfer(frequencyLSB>>8); // Write MSB first
   SPI.transfer(frequencyLSB);    // Write LSB next
   
   // Write 14-bits of MSB 
   SPI.transfer(frequencyMSB>>8);
   SPI.transfer(frequencyMSB);
+  digitalWrite(slaveSelectPin, HIGH);
   
-  DEBUGLN("Freq transmission complete!");
+  DEBUGLN("DDS freq set");
 }
 
 void DDSClass::sendPhase(unsigned int newPhase)
@@ -150,10 +153,12 @@ void DDSClass::sendPhase(unsigned int newPhase)
   DEBUG("phaseRegister: 0b");
   DEBUGLN(phaseRegister, BIN);
   
+  digitalWrite(slaveSelectPin, LOW);
   SPI.transfer(phaseRegister>>8); // MSB first
   SPI.transfer(phaseRegister);    // LSB next
+  digitalWrite(slaveSelectPin, HIGH);
   
-  DEBUGLN("Phase transmission complete!");
+  DEBUGLN("DDS phase set");
 }
 
 void DDSClass::setOutputMode(ddsMode_t newOutputWave)
@@ -163,18 +168,22 @@ void DDSClass::setOutputMode(ddsMode_t newOutputWave)
     case DDS_MODE_SINE:
       dds.bits.opbiten = 0;
       dds.bits.mode = 0;
+      DEBUGLN("DDS sine");
     break;
     case DDS_MODE_TRIANGLE:
       dds.bits.opbiten = 0;
       dds.bits.mode = 1;
+      DEBUGLN("DDS triangle");
     break;
     case DDS_MODE_SQUARE:
       dds.bits.opbiten = 1;
       dds.bits.div2 = 0;
+      DEBUGLN("DDS square");
     break;
     case DDS_MODE_SQUARE_DIV2:
       dds.bits.opbiten = 1;
       dds.bits.div2 = 1;
+      DEBUGLN("DDS square div2");
     break;
     default:
       // This could be debug
@@ -191,13 +200,18 @@ void DDSClass::setOutput(ddsOutput_t output)
   {
     case DDS_OFF:
       dds.bits.reset = 1;
+      DEBUGLN("DDS off");
     break;
     case DDS_ON:
       dds.bits.reset = 0;
+      DEBUGLN("DDS on");
     break;
-    
-    sendControlRegister();
+    default:
+      DEBUGLN("DDS output mode invalid");
+    break;
   }
+  
+  sendControlRegister();
 }
 
 // Private Functions_________________________________________________________________
@@ -205,10 +219,11 @@ void DDSClass::setOutput(ddsOutput_t output)
 /// \brief Sends the control register to the DDS chip 
 void DDSClass::sendControlRegister()
 {
-  /// \todo Do we need to manually put SS low here?
+  digitalWrite(slaveSelectPin, LOW);
   // Datasheet shows LSB with MSb in examples
   SPI.transfer((dds.controlRegister>>8));  //MSB
   SPI.transfer(dds.controlRegister);       //LSB
-  /// \todo Do we need to manually put SS high here?
+  
+  digitalWrite(slaveSelectPin, HIGH);
 }
 
