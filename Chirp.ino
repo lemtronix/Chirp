@@ -20,7 +20,7 @@
 
 #define MAX_STRING_LENGTH  8
 
-/// \brief Keeps the location of the display menu
+/// @brief Keeps the location of the display menu
 typedef enum
 {
   MENU_MAIN,
@@ -105,7 +105,7 @@ void loop()
       }
       else if (strcmp(inputString, "c1") == 0)
       {
-        /// \todo enhancement: Instead of having a specific else if statement for selecting a channel, convert the second character to select the channel using a switch statement
+        /// @todo enhancement: Instead of having a specific else if statement for selecting a channel, convert the second character to select the channel using a switch statement
         DEBUGLN("Channel 1!");
         p_currentChannel = &outputChannel1;
       }

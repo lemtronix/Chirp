@@ -3,12 +3,15 @@
 #include "Debug.h"
 #define DEBUG_OUTPUT 1
 
+#define CLOCK_FREQUENCY 16000000
+#define DDS_28BITS      0x10000000
+
 DDSClass DDS;
 
 const int slaveSelectPin = 10;
 
 // Defines that allows for easy bit shifting when writing to dds chip using single write
-/// \todo Are using the defines for DDS every used?
+/// @todo Are using the defines for DDS every used?
 #define D15        15
 #define D14        14
 #define B28        13
@@ -23,8 +26,8 @@ const int slaveSelectPin = 10;
 #define MODE       1
 
 /// Control Register used on several common Analog Devices DDS chips such as AD9834 and AD9837
-/// \todo did not compile when resv bits declared const
-typedef struct __attribute__ ((packed))
+/// @todo did not compile when resv bits declared const
+typedef struct __attribute__ ((packed)) __attribute__ ((aligned))
 {
   uint8_t resv0       :1;
   uint8_t mode        :1;    //!< selects between sine (MODE=0) and triangle wave (MODE=1)
@@ -40,7 +43,7 @@ typedef struct __attribute__ ((packed))
   uint8_t fsel        :1;    //!< frequency select bit.  FSEL=0 selects FREQ0
   uint8_t hlb         :1;    //!< determines if a write to frequency register is LSB or MSB when B28=0. HLB=1 is MSB
   uint8_t b28         :1;    //!< loads frequency register is two consecutive writes, LSB first. B28=0 is individual
-  uint8_t d14         :1;    //!< do not change this bit! \todo figure out how to make them const
+  uint8_t d14         :1;
   uint8_t d15         :1;    //!< D15 and D14 functions are handled in the sendFrequency and sendPhase functions, do not manually change them!
 } ddsControlRegisterBits_t;
 
@@ -60,27 +63,28 @@ DDSClass::~DDSClass()
   SPI.end();
 }
 
-/// \brief Resets the DDS chip by setting the RESET register to 1
+/// @brief Resets the DDS chip by setting the RESET register to 1
 void DDSClass::init()
 {
     // Set SS as an output and setup SPI modes
   pinMode (slaveSelectPin, OUTPUT);
   
   SPI.begin();
+  SPI.setClockDivider(SPI_CLOCK_DIV32);
   SPI.setBitOrder(MSBFIRST);   // MSbit first
-  SPI.setDataMode(SPI_MODE3);  // SCLK idle high, sample on clock rising edge is SPI_MODE3
+  SPI.setDataMode(SPI_MODE2);  // SCLK idle high, sample on clock rising edge is SPI_MODE2
   reset();
 }
 void DDSClass::reset()
 {
-  /// \todo modify sendControlRegister to be overloaded with a uint16_t controlRegister write command directly
+  /// @todo modify sendControlRegister to be overloaded with a uint16_t controlRegister write command directly
   DEBUGLN("Resetting DDS chip...");
   
   // Frequency write function in this file performs its set operation in two consecutive (b28).  Also start the DDS in reset mode.
   // Clear all parameters, set the output to a sine wave and turn off the output (reset = 1)
   dds.controlRegister = 0;
-  
   dds.bits.b28=1;
+  
   sendFrequency(0);
   sendPhase(0);
   setOutputMode(DDS_MODE_SINE);
@@ -89,43 +93,31 @@ void DDSClass::reset()
 
 void DDSClass::sendFrequency(unsigned long newFrequency)
 {
-  uint32_t frequencyRegister = 0;  // 28-bit register for storing the frequency
-  uint16_t frequencyLSB = 0;       // Lower 16-bits of the 28-bit register
-  uint16_t frequencyMSB = 0;       // Upper 16-bits of the 28-bit register
+  uint32_t frequencyTuningWord = 0; /// 
+  uint16_t LSB = 0;                 /// Lower 16-bits of the 28-bit register
+  uint16_t MSB = 0;                 /// Upper 16-bits of the 28-bit register
+  float calculatedFrequency = 0.0;  /// 28-bit register for storing the frequency
     
   // Calculation is 2^28/F_MCLK * FREQ = FREQ_REG
-  // 2^28/F_MCLK = 16.777216, but instead of dealing with floating point, we'll calculate using 168 and divide by 10
-  // this method equates to about a 0.135% error
-  frequencyRegister = (168 * newFrequency) / 10;
+  calculatedFrequency = (((float)(newFrequency)))/(CLOCK_FREQUENCY);
+  frequencyTuningWord = (uint32_t)(calculatedFrequency*DDS_28BITS);
   
-  // First write contains the 14 LSbits of the frequency word, next write contains 14 MSbits
-  // We're always writing to the FREQ0 register to keep this nice and simple
-  /// \todo Enhance this function to allow for writes to either FREQ0 or FREQ1
-  frequencyLSB = frequencyRegister;
-  frequencyLSB &= ~(1<<15);  // Replace bit 15 with a 0
-  frequencyLSB |= (1<<14);   // Replace bit 14 with a 1
+  // Modify the frequencyTuningWord into two 14-bit registers to be sent
+  MSB = (uint16_t)((frequencyTuningWord & 0xFFFC000)>>14);  
+  LSB = (uint16_t)(frequencyTuningWord & 0x3FFF);
   
-  frequencyMSB = (frequencyRegister>>16);
-  frequencyMSB &= ~(1<<15);  // Replace bit 15 with a 0
-  frequencyMSB |= (1<<14);   // Replace bit 14 with a 1
+  // We're always writing to the FREQ0 register to keep this nice and simple (0b01XXXXXX)
+  MSB |= 0x4000;
+  LSB |= 0x4000;
   
-    /// \todo DEBUG Output the registers to verify the calculations are correct
-  DEBUG("frequencyRegister: ");
-  DEBUGLN(frequencyRegister, HEX);
-  DEBUG("frequencyLSB: 0b");
-  DEBUGLN(frequencyLSB, BIN);
-  DEBUG("frequencyMSB: 0b");
-  DEBUGLN(frequencyMSB, BIN);
+  // Write it to the DDS chip
+  writeDDS(LSB);
+  writeDDS(MSB);
   
-  // Write 14-bits of LSB
-  digitalWrite(slaveSelectPin, LOW);
-  SPI.transfer(frequencyLSB>>8); // Write MSB first
-  SPI.transfer(frequencyLSB);    // Write LSB next
-  
-  // Write 14-bits of MSB 
-  SPI.transfer(frequencyMSB>>8);
-  SPI.transfer(frequencyMSB);
-  digitalWrite(slaveSelectPin, HIGH);
+  DEBUG("LSB: 0x");
+  DEBUGLN(LSB,HEX);
+  DEBUG("MSB: 0x");
+  DEBUGLN(MSB,HEX);
   
   DEBUGLN("DDS freq set");
 }
@@ -142,22 +134,13 @@ void DDSClass::sendPhase(unsigned int newPhase)
   // Phase0 register has 0b110X for bits <15:12> in control register
   // Phase1 register has 0b111X
   // We're always writing to the PHASE0 register to keep this nice and simple 
-  /// \todo Enhance this function to allow for writes to either PHASE0 or PHASE1
+  /// @todo Enhance this function to allow for writes to either PHASE0 or PHASE1
   phaseRegister = phaseCalculation; 
   phaseRegister |= ((1<<15) | (1<<14));
   phaseRegister &= ~(1<<13);
-  
-  /// \todo DEBUG Output the registers to verify the calculations are correct
-  DEBUG("phaseCalculation: ");
-  DEBUGLN(phaseCalculation, BIN);
-  DEBUG("phaseRegister: 0b");
-  DEBUGLN(phaseRegister, BIN);
-  
-  digitalWrite(slaveSelectPin, LOW);
-  SPI.transfer(phaseRegister>>8); // MSB first
-  SPI.transfer(phaseRegister);    // LSB next
-  digitalWrite(slaveSelectPin, HIGH);
-  
+    
+  writeDDS(phaseRegister);
+    
   DEBUGLN("DDS phase set");
 }
 
@@ -191,7 +174,7 @@ void DDSClass::setOutputMode(ddsMode_t newOutputWave)
     break;
   }
   
-  sendControlRegister();
+  writeDDS(dds.controlRegister);
 }
 
 void DDSClass::setOutput(ddsOutput_t output)
@@ -211,19 +194,24 @@ void DDSClass::setOutput(ddsOutput_t output)
     break;
   }
   
-  sendControlRegister();
+  writeDDS(dds.controlRegister);
 }
 
 // Private Functions_________________________________________________________________
 
-/// \brief Sends the control register to the DDS chip 
-void DDSClass::sendControlRegister()
+/// @brief Sends the control register to the DDS chip 
+void DDSClass::writeDDS(uint16_t data)
 {
   digitalWrite(slaveSelectPin, LOW);
   // Datasheet shows LSB with MSb in examples
-  SPI.transfer((dds.controlRegister>>8));  //MSB
-  SPI.transfer(dds.controlRegister);       //LSB
-  
+  SPI.transfer((data>>8));  //MSB
+  SPI.transfer(data);       //LSB
+    
   digitalWrite(slaveSelectPin, HIGH);
+  
+  DEBUG("DDS write: ");
+  DEBUGLN(data, BIN); 
+  
+  /// @todo Add a delay in writeDDS?
 }
 

@@ -27,7 +27,7 @@ class DDSClass
     void setOutputMode(ddsMode_t);
     void setOutput(ddsOutput_t);
   private:
-    void sendControlRegister();
+    void writeDDS(uint16_t data);
 };
 
 extern DDSClass DDS;

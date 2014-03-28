@@ -60,7 +60,7 @@ void RpotClass::softwareReset()
   
   Wire.beginTransmission(RPOT_ADDRESS);
   Wire.write(0);
-  Wire.write(RPOT_SOFTWARE_RESET);      /// \todo Does Wire allow for 9 bits to be send?
+  Wire.write(RPOT_SOFTWARE_RESET);      /// @todo Does Wire allow for 9 bits to be send?
   Wire.endTransmission(false);          // Resend start bit
   Wire.endTransmission();
   

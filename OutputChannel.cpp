@@ -98,13 +98,13 @@ ERROR_MESSAGE_T OutputChannelClass::setPhaseDegrees(unsigned int newPhaseDegrees
   {
     phaseDegrees = newPhaseDegrees;
     // @todo Turn output off while changing phase or frequency register
-    DDS.setOutput(DDS_OFF);
+    //DDS.setOutput(DDS_OFF);
     
     // Set the phase
     DDS.sendPhase(newPhaseDegrees);
     
     // Turn the output back on if it was previous enabled
-    outputStatus == ON ? DDS.setOutput(DDS_ON) : DDS.setOutput(DDS_OFF);
+    //outputStatus == ON ? DDS.setOutput(DDS_ON) : DDS.setOutput(DDS_OFF);
     
     error = SUCCESS;
   }

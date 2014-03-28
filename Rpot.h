@@ -3,7 +3,7 @@
 
 #include "Arduino.h"
 
-/// \brief Class for storing information about an output channel
+/// @brief Class for storing information about an output channel
 class RpotClass
 {
   public:

@@ -15,7 +15,7 @@ typedef enum
   ERROR_MESSAGE_OTHER
 } ERROR_MESSAGE_T;
 
-/// \brief Class for storing information about an output channel
+/// @brief Class for storing information about an output channel
 class OutputChannelClass
 {
   public:
