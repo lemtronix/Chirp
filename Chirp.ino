@@ -47,6 +47,8 @@ byte stringLength = 0;
 boolean stringComplete = false;
 unsigned long userInputUL;
 
+const uint8_t muxPin = 3;
+
 OutputChannelClass* p_currentChannel;
 
 struct
@@ -57,6 +59,8 @@ struct
 
 void setup()
 {
+  pinMode(muxPin, OUTPUT);
+  
   // put your setup code here, to run once:
   Serial.begin(9600);
   while (!Serial)
@@ -69,7 +73,9 @@ void setup()
   
   // Load the main menu by default
   menuState = MENU_MAIN;
-  // Display.mainMenu(); // Could display mainMenu here
+  
+  // Could display mainMenu here
+  // Display.mainMenu();
   
   // This only needs to be called once, even if there are more than one output channel
   p_currentChannel->init();
@@ -103,43 +109,20 @@ void loop()
       {
         Display.bootLoaderMode();
       }
-      else if (strcmp(inputString, "c1") == 0)
-      {
-        /// @todo enhancement: Instead of having a specific else if statement for selecting a channel, convert the second character to select the channel using a switch statement
-        DEBUGLN("Channel 1!");
-        p_currentChannel = &outputChannel1;
-      }
-#ifdef MULTICHANNEL
-      else if (strcmp(inputString, "c2") == 0)
-      {
-        DEBUGLN("Channel 2!");
-        p_currentChannel = &outputChannel2;
-      }
-      else if (strcmp(inputString, "c3") == 0)
-      {
-        DEBUGNL("Channel 3!");
-        p_currentChannel = &outputChannel3;
-      }
-      else if (strcmp(inputString, "c4") == 0)
-      {
-        DEBUGLN("Channel 4!");
-        p_currentChannel = &outputChannel4;
-      }
-      else if (strcmp(inputString, "c5") == 0)
-      {
-        DEBUGLN("Channel 5!");    
-        p_currentChannel = &outputChannel5;
-      }
-#endif // MULTICHANNEL
-      else if (strcmp(inputString, "v") == 0)
-      {
-        Serial.print("Current channel is: ");
-        Serial.println(p_currentChannel->getChannelNumber());
-      }
       else if (strcmp(inputString, "s") == 0)
       {
-        Serial.print("Saving channel ");
-        Serial.println(p_currentChannel->getChannelNumber());
+        Serial.println("Saving channel...");
+      }
+      else if (strcmp(inputString, "v") == 0)
+      {
+        Serial.print("Frequency: ");
+        Serial.println(p_currentChannel->getFrequencyHz());
+        Serial.print("Amplitude: ");
+        Serial.println(p_currentChannel->getAmplitudeMV());
+        Serial.print("Phase: ");
+        Serial.println(p_currentChannel->getPhaseDegrees());
+        Serial.print("Output: ");
+        p_currentChannel->getOutputStatus() == ON ? Serial.println("On") : Serial.println("Off");
       }
       else if (strcmp(inputString, "f") == 0)
       {
@@ -185,6 +168,16 @@ void loop()
       {
         Serial.println("Chirp square div2");
         DDS.setOutputMode(DDS_MODE_SQUARE_DIV2);
+      }
+      else if (strcmp(inputString, "m1") == 0)
+      {
+        Serial.println("Chirp NC filtered");
+        digitalWrite(muxPin, LOW);
+      }
+      else if (strcmp(inputString, "m2") == 0)
+      {
+        Serial.println("Chirp NO not filtered");
+        digitalWrite(muxPin, HIGH);
       }
       else
       {
@@ -283,13 +276,12 @@ void loop()
     }
     
     // Print the command prompt
-    Serial.print("c");
-    Serial.print(p_currentChannel->getChannelNumber());
-    Serial.print("freq");
+    /// @todo make it so that the command prompt doesn't print when setting 
+    Serial.print("F");
     Serial.print(p_currentChannel->getFrequencyHz());
-    Serial.print("amp");
+    Serial.print("A");
     Serial.print(p_currentChannel->getAmplitudeMV());
-    Serial.print("phase");
+    Serial.print("P");
     Serial.print(p_currentChannel->getPhaseDegrees());
     p_currentChannel->getOutputStatus() == ON ? Serial.print("on") : Serial.print("off");
     Serial.print(">");

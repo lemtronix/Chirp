@@ -3,7 +3,7 @@
 
 DisplayClass Display;
 
-#define HELP_MENU_ROW_MAX  15
+#define HELP_MENU_ROW_MAX  12
 
 const prog_char stringHelpMenu_1[] PROGMEM   = "Chirp by Lemtronix, LLC.";
 const prog_char stringHelpMenu_2[] PROGMEM   = "------------------------------";
@@ -11,16 +11,14 @@ const prog_char stringHelpMenu_3[] PROGMEM   = "?   Help Menu";
 const prog_char stringHelpMenu_4[] PROGMEM   = "@   Version information";
 const prog_char stringHelpMenu_5[] PROGMEM   = "#   Reset Device";
 const prog_char stringHelpMenu_6[] PROGMEM   = "$   Bootloader Mode";
-const prog_char stringHelpMenu_7[] PROGMEM   = "c#  Select an output channel {1..5}";
-const prog_char stringHelpMenu_8[] PROGMEM   = "v   View current channel settings";
-const prog_char stringHelpMenu_9[] PROGMEM   = "s   Save output channel";
-const prog_char stringHelpMenu_10[] PROGMEM  = "f   Set Frequency";
-const prog_char stringHelpMenu_11[] PROGMEM  = "a   Set Amplitude";
-const prog_char stringHelpMenu_12[] PROGMEM  = "p   Set Phase";
-const prog_char stringHelpMenu_13[] PROGMEM  = "o/O Turn output (o)ff or (O)n";
-const prog_char stringHelpMenu_14[] PROGMEM  = "T1  Test I2C with generic pattern";
-const prog_char stringHelpMenu_15[] PROGMEM  = "T2  Test SPI with generic pattern";
+const prog_char stringHelpMenu_7[] PROGMEM   = "v   View current output settings";
+const prog_char stringHelpMenu_8[] PROGMEM   = "s   Save output channel";
+const prog_char stringHelpMenu_9[] PROGMEM   = "f   Set Frequency";
+const prog_char stringHelpMenu_10[] PROGMEM  = "a   Set Amplitude";
+const prog_char stringHelpMenu_11[] PROGMEM  = "p   Set Phase";
+const prog_char stringHelpMenu_12[] PROGMEM  = "o/O Turn output (o)ff or (O)n";
 
+//const prog_char stringHelpMenu_7[] PROGMEM   = "c#  Select an output channel {1..5}";
 PROGMEM const char* helpMenu[] = 
 {
   stringHelpMenu_1,
@@ -35,9 +33,6 @@ PROGMEM const char* helpMenu[] =
   stringHelpMenu_10,
   stringHelpMenu_11,
   stringHelpMenu_12,
-  stringHelpMenu_13,
-  stringHelpMenu_14,
-  stringHelpMenu_15
 };
 
 char buffer[48];
@@ -63,7 +58,7 @@ void DisplayClass::mainMenu()
 
 void DisplayClass::resetDevice()
 {
-  print_P(PSTR("Resetting the device"));
+  print_P(PSTR("Resetting the device..."));
 }
 void DisplayClass::bootLoaderMode()
 {
@@ -101,6 +96,7 @@ void DisplayClass::invalidSelection()
 void DisplayClass::print_P(const char* pstr)
 {
   uint8_t val;
+  
   while (true)
   {
     val = pgm_read_byte(pstr);
@@ -108,6 +104,7 @@ void DisplayClass::print_P(const char* pstr)
     Serial.write(val);
     pstr++;
   }
-  Serial.write("\n");
+  
+  Serial.write("\r\n");
 }
 

@@ -72,14 +72,11 @@ void DDSClass::init()
   SPI.begin();
   SPI.setClockDivider(SPI_CLOCK_DIV32);
   SPI.setBitOrder(MSBFIRST);   // MSbit first
-  SPI.setDataMode(SPI_MODE2);  // SCLK idle high, sample on clock rising edge is SPI_MODE2
+  SPI.setDataMode(SPI_MODE2);  // SCLK idle high, sample on clock falling edge is SPI_MODE2
   reset();
 }
 void DDSClass::reset()
 {
-  /// @todo modify sendControlRegister to be overloaded with a uint16_t controlRegister write command directly
-  DEBUGLN("Resetting DDS chip...");
-  
   // Frequency write function in this file performs its set operation in two consecutive (b28).  Also start the DDS in reset mode.
   // Clear all parameters, set the output to a sine wave and turn off the output (reset = 1)
   dds.controlRegister = 0;
@@ -89,6 +86,8 @@ void DDSClass::reset()
   sendPhase(0);
   setOutputMode(DDS_MODE_SINE);
   setOutput(DDS_OFF);
+  
+  DEBUGLN("DDS reset complete");
 }
 
 void DDSClass::sendFrequency(unsigned long newFrequency)
