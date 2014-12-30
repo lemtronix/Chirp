@@ -5,6 +5,7 @@
 #include "OutputChannel.h"
 #include "DDS.h" // used by OutputChannel.cpp
 #include "Rpot.h" // used by OutputChannel.cpp
+#include "Mux.h"
 //#include <stdlib> // used with atoi, atol
 #include "Debug.h"
 #define DEBUG_OUTPUT 1
@@ -148,6 +149,14 @@ void loop()
       {
         p_currentChannel->setOutputStatus(ON);
         Display.outputOn();
+      }
+      else if (strcmp(inputString, "m") == 0)
+      {
+        Mux.select(MUX_UNFILTERED);
+      }
+      else if (strcmp(inputString, "M") == 0)
+      {
+        Mux.select(MUX_FILTERED);
       }
       else if (strcmp(inputString, "ms") == 0)
       {

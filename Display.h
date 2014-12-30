@@ -1,8 +1,6 @@
 #ifndef Display_h
 #define Display_h
 
-#include "Arduino.h"
-
 class DisplayClass
 {
   public:
