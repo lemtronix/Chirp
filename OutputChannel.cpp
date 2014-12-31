@@ -18,7 +18,7 @@ OutputChannelClass::~OutputChannelClass()
 void OutputChannelClass::init(void)
 {
   DDS.init();
-  RPOT.init();
+  Rpot.init();
 }
 
 unsigned char OutputChannelClass::getChannelNumber(void)
