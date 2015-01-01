@@ -8,7 +8,8 @@
 #include "Mux.h"
 //#include <stdlib> // used with atoi, atol
 #include "Debug.h"
-#define DEBUG_OUTPUT 1
+
+#define DEBUG_OUTPUT 0
 
 #define ASCII_NUL      0x00
 #define ASCII_BEL      0x07
@@ -88,9 +89,13 @@ void loop()
   if (stringComplete == true)
   {
     // Only executes this when a new string is received from the terminal
-    DEBUG("\nCommand Received: ");
-    DEBUGLN(inputString);
-
+    #if (DEBUG_OUTPUT == 1)
+     DEBUG("\nCommand Received: ");
+     DEBUGLN(inputString);
+    #else
+     Serial.println();
+    #endif
+    
     if (menuState == MENU_MAIN)
     {
       if (strcmp(inputString, "?") == 0)
@@ -112,17 +117,17 @@ void loop()
       }
       else if (strcmp(inputString, "s") == 0)
       {
-        Serial.println("Saving channel...");
+        Serial.println(F("Saving channel..."));
       }
       else if (strcmp(inputString, "v") == 0)
       {
-        Serial.print("Frequency: ");
+        Serial.print(F("Frequency: "));
         Serial.println(p_currentChannel->getFrequencyHz());
-        Serial.print("Amplitude: ");
+        Serial.print(F("Amplitude: "));
         Serial.println(p_currentChannel->getAmplitudeMV());
-        Serial.print("Phase: ");
+        Serial.print(F("Phase: "));
         Serial.println(p_currentChannel->getPhaseDegrees());
-        Serial.print("Output: ");
+        Serial.print(F("Output: "));
         p_currentChannel->getOutputStatus() == ON ? Serial.println("On") : Serial.println("Off");
       }
       else if (strcmp(inputString, "f") == 0)
@@ -152,41 +157,63 @@ void loop()
       }
       else if (strcmp(inputString, "m") == 0)
       {
+        Serial.println(F("Output filtering disabled"));
         Mux.select(MUX_UNFILTERED);
       }
       else if (strcmp(inputString, "M") == 0)
       {
+        Serial.println(F("Output filtering enabled"));
         Mux.select(MUX_FILTERED);
       }
       else if (strcmp(inputString, "ms") == 0)
       {
-        Serial.println("Chirp sine");
+        Serial.println(F("Chirp sine"));
         DDS.setOutputMode(DDS_MODE_SINE);
       }
       else if (strcmp(inputString, "mt") == 0)
       {
-        Serial.println("Chirp triangle");
+        Serial.println(F("Chirp triangle"));
         DDS.setOutputMode(DDS_MODE_TRIANGLE);
       }
       else if (strcmp(inputString, "msq") == 0)
       {
-        Serial.println("Chirp square");
+        Serial.println(F("Chirp square"));
         DDS.setOutputMode(DDS_MODE_SQUARE);
       }
       else if (strcmp(inputString, "msq2") == 0)
       {
-        Serial.println("Chirp square div2");
+        Serial.println(F("Chirp square div2"));
         DDS.setOutputMode(DDS_MODE_SQUARE_DIV2);
       }
       else if (strcmp(inputString, "m1") == 0)
       {
-        Serial.println("Chirp NC filtered");
+        Serial.println(F("Chirp NC filtered"));
         digitalWrite(muxPin, LOW);
       }
       else if (strcmp(inputString, "m2") == 0)
       {
-        Serial.println("Chirp NO not filtered");
+        Serial.println(F("Chirp NO not filtered"));
         digitalWrite(muxPin, HIGH);
+      }
+      else if (strcmp(inputString, "rs") == 0)
+      {
+        Serial.println(F("Rpot Status:"));
+        Rpot.printStatus();
+      }
+      else if (strcmp(inputString, "rt") == 0)
+      {
+        Serial.println(F("Rpot Tcon Status:"));
+        Rpot.printTcon();
+      }
+      else if (strcmp(inputString, "r0") == 0)
+      {
+        Serial.println(F("Rpot1 Value:"));
+        Rpot.printPotValue(0);
+      }
+      else if (strcmp(inputString, "r1") == 0)
+      {
+        Serial.println(F("Rpot2 Value:"));
+        Rpot.printPotValue(1);
       }
       else
       {
@@ -212,7 +239,7 @@ void loop()
         if (p_currentChannel->setFrequencyHz(userInputUL))
         {
           //indicate ERROR and display retry message
-          Serial.println("An error has occurred, please try again");
+          Serial.println(F("An error has occurred, please try again"));
         }
         else
         {
@@ -243,9 +270,9 @@ void loop()
         else
         {
           // success, amplitude is already set
-          DEBUG("Channel ");
+          DEBUG(F("Channel "));
           DEBUG(p_currentChannel->getChannelNumber());
-          DEBUG(" amplitude is now ");
+          DEBUG(F(" amplitude is now "));
           DEBUGLN(p_currentChannel->getAmplitudeMV());
           // @todo create RPOT.sendAmplitude() function
           menuState = MENU_MAIN;
@@ -269,14 +296,14 @@ void loop()
         if (p_currentChannel->setPhaseDegrees(userInputUL))
         {
           //indicate ERROR and display retry message
-          Serial.println("An error has occurred, please try again");
+          Serial.println(F("An error has occurred, please try again"));
         }
         else
         {
           // success
-          DEBUG("Channel ");
+          DEBUG(F("Channel "));
           DEBUG(p_currentChannel->getChannelNumber());
-          DEBUG(" phase is now ");
+          DEBUG(F(" phase is now "));
           DEBUGLN(p_currentChannel->getPhaseDegrees());
 
           menuState = MENU_MAIN;

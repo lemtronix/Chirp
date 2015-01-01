@@ -33,6 +33,9 @@ class RpotClass
     RpotClass();
     ~RpotClass();
     void init();
+    void printStatus();
+    void printTcon();
+    void printPotValue(uint8_t RpotNumber);
   private:
     uint8_t write(RPOT_MEMORY_MAP_T MemoryAddress, RPOT_CMD_T Command, uint16_t Data);
     uint8_t read(RPOT_MEMORY_MAP_T MemoryAddress, uint16_t* pData);

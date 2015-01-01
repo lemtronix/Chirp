@@ -45,12 +45,46 @@ void RpotClass::init()
   // Start I2C module as a master device
   Wire.begin();
   
-  softwareReset();
-  disconnectPots();
-  // Initialize Rpot to zero scale (0x000) on both POTs (R_AB)
-  // Set Wiper to B to get maximum resistance
+  //softwareReset();
+  
+  // P0 is a rheostat, disconnect P0B <b0> in TCON register
 }
 
+void RpotClass::printStatus()
+{
+  uint16_t Data;
+  read(RPOT_MEMORY_MAP_STATUS_REGISTER, &Data);
+  
+  Serial.println(Data);
+}
+
+void RpotClass::printTcon()
+{
+  uint16_t Data;
+  read(RPOT_MEMORY_MAP_VOLATILE_TCON, &Data);
+  
+  Serial.println(Data);
+}
+
+void RpotClass::printPotValue(uint8_t PotNumber)
+{
+  uint16_t Data;
+
+  switch (PotNumber)
+  {
+    case 0:
+      read(RPOT_MEMORY_MAP_VOLATILE_WIPER_0, &Data);
+    break;
+    case 1:
+      read(RPOT_MEMORY_MAP_VOLATILE_WIPER_1, &Data);
+    break;
+    default:
+      Serial.println(F("Rpot invalid value"));
+    break;
+  }
+
+  Serial.println(Data);
+}
 /** @brief Sends an I2C command to the RPOT
  *
  *  @details 
@@ -73,16 +107,19 @@ uint8_t RpotClass::write(RPOT_MEMORY_MAP_T MemoryAddress, RPOT_CMD_T Command, ui
   if (MemoryAddress > RPOT_MEMORY_MAP_INVALID_VALUE)
   {
     // Invalid address
+    DEBUGLN(F("Rpot: Invalid Address"));
     return 1;
   }
   else if (Command >= RPOT_CMD_INVALID)
   {
     // Invalid command
+    DEBUGLN(F("Rpot: Invalid Command"));
     return 1;
   }
   else if (Data > RPOT_MAX_DATA_VALUE)
   {
     // Invalid data
+    DEBUGLN(F("Rpot: Invalid data"));
     return 1;
   }
     
@@ -130,10 +167,12 @@ uint8_t RpotClass::read(RPOT_MEMORY_MAP_T MemoryAddress, uint16_t* pData)
   if (MemoryAddress > RPOT_MEMORY_MAP_INVALID_VALUE)
   {
     // Invalid address
+    DEBUGLN(F("Rpot: Invalid address"));
     return 1;
   }
   else if (pData == NULL)
   {
+    DEBUGLN(F("Rpot: pointer is null"));
     return 1;
   }
   
@@ -141,6 +180,7 @@ uint8_t RpotClass::read(RPOT_MEMORY_MAP_T MemoryAddress, uint16_t* pData)
   if(write(MemoryAddress, RPOT_CMD_READ_DATA, 0))
   {
     // unable to command the device to read
+    DEBUGLN(F("Rpot: Unable to read"));
     return 1;
   }
   
@@ -161,7 +201,7 @@ void RpotClass::softwareReset()
 {
   // I2C software reset issue start bit, 9 bits of '1' followed by another start bit, then a stop bit
   // Command should be [0x51, 0x1FF[]
-  DEBUGLN("Resetting RPOT...");
+  DEBUGLN(F("Resetting RPOT..."));
   
   Wire.beginTransmission(RPOT_ADDRESS);
   Wire.write(0);
@@ -176,7 +216,7 @@ void RpotClass::disconnectPots()
 {
   // On POR/BOR, register is loaded with a 0x1FF (everything enabled)
   // Write a 0x000 to the TCON register to turn everything off, including general address calls
-  DEBUGLN("Disconnecting RPOTs...");
+  DEBUGLN(F("Disconnecting RPOTs..."));
   
   Wire.beginTransmission(RPOT_ADDRESS);
   Wire.write(RPOT_TCON_DISABLE);

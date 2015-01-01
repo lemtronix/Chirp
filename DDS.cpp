@@ -1,7 +1,7 @@
 #include <SPI.h>
 #include "DDS.h"
 #include "Debug.h"
-#define DEBUG_OUTPUT 1
+#define DEBUG_OUTPUT 0
 
 #define CLOCK_FREQUENCY 16000000
 #define DDS_28BITS      0x10000000
@@ -87,7 +87,7 @@ void DDSClass::reset()
   setOutputMode(DDS_MODE_SINE);
   setOutput(DDS_OFF);
   
-  DEBUGLN("DDS reset complete");
+  DEBUGLN(F("DDS reset complete"));
 }
 
 void DDSClass::sendFrequency(unsigned long newFrequency)
@@ -113,9 +113,9 @@ void DDSClass::sendFrequency(unsigned long newFrequency)
   writeDDS(LSB);
   writeDDS(MSB);
   
-  DEBUG("LSB: 0x");
+  DEBUG(F("LSB: 0x"));
   DEBUGLN(LSB,HEX);
-  DEBUG("MSB: 0x");
+  DEBUG(F("MSB: 0x"));
   DEBUGLN(MSB,HEX);
   
   DEBUGLN("DDS freq set");
@@ -140,7 +140,7 @@ void DDSClass::sendPhase(unsigned int newPhase)
     
   writeDDS(phaseRegister);
     
-  DEBUGLN("DDS phase set");
+  DEBUGLN(F("DDS phase set"));
 }
 
 void DDSClass::setOutputMode(ddsMode_t newOutputWave)
@@ -150,26 +150,26 @@ void DDSClass::setOutputMode(ddsMode_t newOutputWave)
     case DDS_MODE_SINE:
       dds.bits.opbiten = 0;
       dds.bits.mode = 0;
-      DEBUGLN("DDS sine");
+      DEBUGLN(F("DDS sine"));
     break;
     case DDS_MODE_TRIANGLE:
       dds.bits.opbiten = 0;
       dds.bits.mode = 1;
-      DEBUGLN("DDS triangle");
+      DEBUGLN(F("DDS triangle"));
     break;
     case DDS_MODE_SQUARE:
       dds.bits.opbiten = 1;
       dds.bits.div2 = 0;
-      DEBUGLN("DDS square");
+      DEBUGLN(F("DDS square"));
     break;
     case DDS_MODE_SQUARE_DIV2:
       dds.bits.opbiten = 1;
       dds.bits.div2 = 1;
-      DEBUGLN("DDS square div2");
+      DEBUGLN(F("DDS square div2"));
     break;
     default:
       // This could be debug
-      DEBUG("Invalid output mode");
+      DEBUG(F("Invalid output mode"));
     break;
   }
   
@@ -182,14 +182,14 @@ void DDSClass::setOutput(ddsOutput_t output)
   {
     case DDS_OFF:
       dds.bits.reset = 1;
-      DEBUGLN("DDS off");
+      DEBUGLN(F("DDS off"));
     break;
     case DDS_ON:
       dds.bits.reset = 0;
-      DEBUGLN("DDS on");
+      DEBUGLN(F("DDS on"));
     break;
     default:
-      DEBUGLN("DDS output mode invalid");
+      DEBUGLN(F("DDS output mode invalid"));
     break;
   }
   
@@ -208,7 +208,7 @@ void DDSClass::writeDDS(uint16_t data)
     
   digitalWrite(slaveSelectPin, HIGH);
   
-  DEBUG("DDS write: ");
+  DEBUG(F("DDS write: "));
   DEBUGLN(data, BIN); 
   
   /// @todo Add a delay in writeDDS?
