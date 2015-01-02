@@ -15,7 +15,7 @@
 // Second byte is the 4-bit memory address, 2-bit command, and bits <9:8> of the data byte
 // Third byte are bits <7:0> of the data byte
 
-#define RPOT_ADDRESS         0x50  // RPOT has a fixed address of 0b0101A2A1A0; where <A2:A0> are the hardware address select pins, currently 000
+#define RPOT_ADDRESS         0x28  // RPOT has a fixed address of 0b0101A2A1A0; where <A2:A0> are the hardware address select pins, currently 000
 #define RPOT_SOFTWARE_RESET  0x1FF //
 
 #define RPOT_FULL_SCALE   0x100
@@ -42,12 +42,15 @@ RpotClass::~RpotClass()
 
 void RpotClass::init()
 {
+  uint16_t Data;
   // Start I2C module as a master device
   Wire.begin();
   
-  //softwareReset();
-  
-  // P0 is a rheostat, disconnect P0B <b0> in TCON register
+  // P0 is a rheostat, disconnect P0B <b0> in TCON register using read modify write
+  DEBUGLN(F("Rpot: Rheostate mode: disconnecting R0B"));
+//  read(RPOT_MEMORY_MAP_VOLATILE_TCON, &Data);
+//  Data &= ~(1<<0);
+  write(RPOT_MEMORY_MAP_VOLATILE_TCON, RPOT_CMD_WRITE_DATA, 0x00FE);
 }
 
 void RpotClass::printStatus()
@@ -55,7 +58,7 @@ void RpotClass::printStatus()
   uint16_t Data;
   read(RPOT_MEMORY_MAP_STATUS_REGISTER, &Data);
   
-  Serial.println(Data);
+  Serial.println(Data, HEX);
 }
 
 void RpotClass::printTcon()
@@ -63,7 +66,7 @@ void RpotClass::printTcon()
   uint16_t Data;
   read(RPOT_MEMORY_MAP_VOLATILE_TCON, &Data);
   
-  Serial.println(Data);
+  Serial.println(Data, HEX);
 }
 
 void RpotClass::printPotValue(uint8_t PotNumber)
@@ -83,7 +86,7 @@ void RpotClass::printPotValue(uint8_t PotNumber)
     break;
   }
 
-  Serial.println(Data);
+  Serial.println(Data, HEX);
 }
 /** @brief Sends an I2C command to the RPOT
  *
@@ -194,32 +197,5 @@ uint8_t RpotClass::read(RPOT_MEMORY_MAP_T MemoryAddress, uint16_t* pData)
   *pData |= (Byte3);      //LSB
   
   return 0;
-}
-
-
-void RpotClass::softwareReset()
-{
-  // I2C software reset issue start bit, 9 bits of '1' followed by another start bit, then a stop bit
-  // Command should be [0x51, 0x1FF[]
-  DEBUGLN(F("Resetting RPOT..."));
-  
-  Wire.beginTransmission(RPOT_ADDRESS);
-  Wire.write(0);
-  Wire.write(RPOT_SOFTWARE_RESET);      /// @todo Does Wire allow for 9 bits to be send?
-  Wire.endTransmission(false);          // Resend start bit
-  Wire.endTransmission();
-  
-  DEBUGLN("Reset complete!");
-}
-
-void RpotClass::disconnectPots()
-{
-  // On POR/BOR, register is loaded with a 0x1FF (everything enabled)
-  // Write a 0x000 to the TCON register to turn everything off, including general address calls
-  DEBUGLN(F("Disconnecting RPOTs..."));
-  
-  Wire.beginTransmission(RPOT_ADDRESS);
-  Wire.write(RPOT_TCON_DISABLE);
-  Serial.println(Wire.endTransmission());
 }
 

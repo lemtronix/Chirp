@@ -185,16 +185,6 @@ void loop()
         Serial.println(F("Chirp square div2"));
         DDS.setOutputMode(DDS_MODE_SQUARE_DIV2);
       }
-      else if (strcmp(inputString, "m1") == 0)
-      {
-        Serial.println(F("Chirp NC filtered"));
-        digitalWrite(muxPin, LOW);
-      }
-      else if (strcmp(inputString, "m2") == 0)
-      {
-        Serial.println(F("Chirp NO not filtered"));
-        digitalWrite(muxPin, HIGH);
-      }
       else if (strcmp(inputString, "rs") == 0)
       {
         Serial.println(F("Rpot Status:"));
