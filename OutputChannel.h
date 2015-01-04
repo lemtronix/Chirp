@@ -19,23 +19,23 @@ typedef enum
 class OutputChannelClass
 {
   public:
-    OutputChannelClass(unsigned char cNumber);
+    OutputChannelClass(uint8_t cNumber);
     ~OutputChannelClass();
     void init(void);
-    unsigned char getChannelNumber(void);
-    unsigned long getFrequencyHz(void);
-    unsigned int getAmplitudeMV(void);
-    unsigned int getPhaseDegrees(void);
+    uint8_t getChannelNumber(void);
+    uint32_t getFrequencyHz(void);
+    uint16_t getAmplitudeMV(void);
+    uint16_t getPhaseDegrees(void);
     boolean getOutputStatus(void);
-    ERROR_MESSAGE_T setFrequencyHz(unsigned long);
-    ERROR_MESSAGE_T setAmplitudeMV(unsigned int);
-    ERROR_MESSAGE_T setPhaseDegrees(unsigned int);
+    ERROR_MESSAGE_T setFrequencyHz(uint32_t);
+    ERROR_MESSAGE_T setAmplitudeMV(uint32_t);
+    ERROR_MESSAGE_T setPhaseDegrees(uint32_t);
     ERROR_MESSAGE_T setOutputStatus(boolean);
   private:
-    unsigned char channelNumber; //!< channel number {1..5}
-    unsigned long frequencyHz;   //!< frequency in hz {0..8MHz}
-    unsigned int amplitudeMV;    //!< magnitude of output in mV {100..4000mV}
-    unsigned int phaseDegrees;   //!< phase angle {0..359degrees}
+    uint8_t channelNumber; //!< channel number {1..5}
+    uint32_t frequencyHz;   //!< frequency in hz {0..8MHz}
+    uint16_t amplitudeMV;    //!< magnitude of output in mV {100..4000mV}
+    uint16_t phaseDegrees;   //!< phase angle {0..359degrees}
     boolean outputStatus;        //!< off or on
 };
 

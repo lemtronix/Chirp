@@ -8,7 +8,7 @@
 
 DDSClass DDS;
 
-const int slaveSelectPin = 10;
+const uint8_t slaveSelectPin = 10;
 
 // Defines that allows for easy bit shifting when writing to dds chip using single write
 /// @todo Are using the defines for DDS every used?
@@ -90,7 +90,7 @@ void DDSClass::reset()
   DEBUGLN(F("DDS reset complete"));
 }
 
-void DDSClass::sendFrequency(unsigned long newFrequency)
+void DDSClass::sendFrequency(uint32_t newFrequency)
 {
   uint32_t frequencyTuningWord = 0; /// 
   uint16_t LSB = 0;                 /// Lower 16-bits of the 28-bit register
@@ -121,7 +121,7 @@ void DDSClass::sendFrequency(unsigned long newFrequency)
   DEBUGLN("DDS freq set");
 }
 
-void DDSClass::sendPhase(unsigned int newPhase)
+void DDSClass::sendPhase(uint16_t newPhase)
 {
   uint32_t phaseCalculation = 0;
   uint16_t phaseRegister = 0;

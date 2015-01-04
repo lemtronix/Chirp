@@ -22,8 +22,8 @@ class DDSClass
     ~DDSClass();
     void init();
     void reset();
-    void sendFrequency(unsigned long);
-    void sendPhase(unsigned int);
+    void sendFrequency(uint32_t);
+    void sendPhase(uint16_t);
     void setOutputMode(ddsMode_t);
     void setOutput(ddsOutput_t);
   private:

@@ -1,12 +1,11 @@
 #include <string.h>
 #include <SPI.h> // used in DDS.cpp
-#include <Wire.h> // used in Rpot.cpp
+#include <Wire.h> // used in Amplifier.cpp
 #include "Display.h"
 #include "OutputChannel.h"
 #include "DDS.h" // used by OutputChannel.cpp
-#include "Rpot.h" // used by OutputChannel.cpp
-#include "Mux.h"
-//#include <stdlib> // used with atoi, atol
+#include "Amplifier.h" // used by OutputChannel.cpp
+#include "Filter.h"
 #include "Debug.h"
 
 #define DEBUG_OUTPUT 0
@@ -49,22 +48,12 @@ byte stringLength = 0;
 boolean stringComplete = false;
 unsigned long userInputUL;
 
-const uint8_t muxPin = 3;
-
 OutputChannelClass* p_currentChannel;
 
-struct
-{
-  // version
-} chripObject;
-
-
 void setup()
-{
-  pinMode(muxPin, OUTPUT);
-  
+{  
   // put your setup code here, to run once:
-  Serial.begin(9600);
+  Serial.begin(57600);
   while (!Serial)
   {
     // Wait here if something else is already using the serial connection
@@ -155,15 +144,15 @@ void loop()
         p_currentChannel->setOutputStatus(ON);
         Display.outputOn();
       }
-      else if (strcmp(inputString, "m") == 0)
+      else if (strcmp(inputString, "d") == 0)
       {
-        Serial.println(F("Output filtering disabled"));
-        Mux.select(MUX_UNFILTERED);
+        Serial.println(F("DAC filter disabled"));
+        Filter.off();
       }
-      else if (strcmp(inputString, "M") == 0)
+      else if (strcmp(inputString, "D") == 0)
       {
-        Serial.println(F("Output filtering enabled"));
-        Mux.select(MUX_FILTERED);
+        Serial.println(F("DAC filter enabled"));
+        Filter.on();
       }
       else if (strcmp(inputString, "ms") == 0)
       {
@@ -187,23 +176,23 @@ void loop()
       }
       else if (strcmp(inputString, "rs") == 0)
       {
-        Serial.println(F("Rpot Status:"));
-        Rpot.printStatus();
+        Serial.println(F("Amplifier Status:"));
+        Amplifier.printStatus();
       }
       else if (strcmp(inputString, "rt") == 0)
       {
-        Serial.println(F("Rpot Tcon Status:"));
-        Rpot.printTcon();
+        Serial.println(F("Amplifier Tcon Status:"));
+        Amplifier.printTcon();
       }
       else if (strcmp(inputString, "r0") == 0)
       {
-        Serial.println(F("Rpot1 Value:"));
-        Rpot.printPotValue(0);
+        Serial.println(F("Amplifier1 Value:"));
+        Amplifier.printPotValue(0);
       }
       else if (strcmp(inputString, "r1") == 0)
       {
-        Serial.println(F("Rpot2 Value:"));
-        Rpot.printPotValue(1);
+        Serial.println(F("Amplifier2 Value:"));
+        Amplifier.printPotValue(1);
       }
       else
       {
@@ -260,11 +249,6 @@ void loop()
         else
         {
           // success, amplitude is already set
-          DEBUG(F("Channel "));
-          DEBUG(p_currentChannel->getChannelNumber());
-          DEBUG(F(" amplitude is now "));
-          DEBUGLN(p_currentChannel->getAmplitudeMV());
-          // @todo create RPOT.sendAmplitude() function
           menuState = MENU_MAIN;
         }
       }
@@ -367,9 +351,4 @@ void serialEvent()
     }
   }
 }
-
-// Debug Notes
-// char debugBuffer[8];
-// DEBUG OUTPUT: ltoa(userInputUL, debugBuffer, 10);
-// Serial.println(debugBuffer);
 

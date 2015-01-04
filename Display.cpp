@@ -18,7 +18,7 @@ const prog_char stringHelpMenu_9[] PROGMEM   = "f   Set Frequency";
 const prog_char stringHelpMenu_10[] PROGMEM  = "a   Set Amplitude";
 const prog_char stringHelpMenu_11[] PROGMEM  = "p   Set Phase";
 const prog_char stringHelpMenu_12[] PROGMEM  = "o/O Turn output (o)ff or (O)n";
-const prog_char stringHelpMenu_13[] PROGMEM  = "m/M Turn mux filtering off or on";
+const prog_char stringHelpMenu_13[] PROGMEM  = "d/D Turn DAC filter off or on";
 
 //const prog_char stringHelpMenu_7[] PROGMEM   = "c#  Select an output channel {1..5}";
 PROGMEM const char* helpMenu[] = 

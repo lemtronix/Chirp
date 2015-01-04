@@ -1,8 +1,8 @@
 /** @todo Change this class to abstract out the fact that Chirp uses an pot to control the output voltage, perhaps AmplifierClass?
 */
 
-#ifndef Rpot_h
-#define Rpot_h
+#ifndef Amplifier_h
+#define Amplifier_h
 
 #include "Arduino.h"
 
@@ -27,12 +27,13 @@ typedef enum
 } RPOT_CMD_T;
 
 /// @brief Class for storing information about an output channel
-class RpotClass
+class AmplifierClass
 {
   public:
-    RpotClass();
-    ~RpotClass();
+    AmplifierClass();
+    ~AmplifierClass();
     void init();
+    uint8_t set(uint16_t VoltageInMvRms);
     void printStatus();
     void printTcon();
     void printPotValue(uint8_t RpotNumber);
@@ -41,7 +42,7 @@ class RpotClass
     uint8_t read(RPOT_MEMORY_MAP_T MemoryAddress, uint16_t* pData);
 };
 
-extern RpotClass Rpot;
+extern AmplifierClass Amplifier;
 
 #endif
 
