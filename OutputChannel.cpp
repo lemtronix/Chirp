@@ -2,6 +2,9 @@
 #include "DDS.h" // used by OutputChannel.cpp
 #include "Amplifier.h" // used by OutputChannel.cpp
 
+#include "Debug.h"
+#define DEBUG_OUTPUT 1
+
 OutputChannelClass::OutputChannelClass(unsigned char cNumber)
 {
   channelNumber = cNumber;
@@ -75,7 +78,8 @@ ERROR_MESSAGE_T OutputChannelClass::setAmplitudeMV(uint32_t newAmplitudeMV)
   ERROR_MESSAGE_T error = ERROR_MESSAGE_UNKNOWN;
 
   // Value must be between less than 4000mV
-  if (newAmplitudeMV <= 1350)
+  // TODO currently limited to 2050 based on testing
+  if (newAmplitudeMV <= 4000)
   {
     if (Amplifier.set(newAmplitudeMV) == 0)
     {
@@ -83,12 +87,9 @@ ERROR_MESSAGE_T OutputChannelClass::setAmplitudeMV(uint32_t newAmplitudeMV)
       error = SUCCESS;
     }
   }
-  else if (newAmplitudeMV > 1350)
-  {
-    error = ERROR_MESSAGE_VALUE_TOO_LARGE;
-  }
   else
   {
+    DEBUGLN(F("Value exceeded 4000"));
     error = ERROR_MESSAGE_OTHER;
   }
   
