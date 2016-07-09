@@ -128,9 +128,17 @@ uint8_t AmplifierClass::set(uint16_t VoltageInMvRms)
     R1ResistanceInTaps = RPOT_MAX_DATA_VALUE;
     
     ResistanceInOhmsQ23_8 = (-1455 * (q23_8_t)VoltageInMvRms) + 3072000;
-    
+
     DEBUG(F("Amplifier > 350: ResistanceInOhmsQ23_8 calculated is: "));
     DEBUGLN(ResistanceInOhmsQ23_8);
+
+    // TODO during testing, I saw issues where R0 (feedback resistor) created lots of noise when less than 80 ohms, but wasn't a problem when set to 0 ohms
+    if (ResistanceInOhmsQ23_8 < 20480) // 20480 / Q8 shift... 20480 / 256 = 80 ohms
+    {
+      // Prevent negative values
+      DEBUGLN(F("Amplifier > 350: ResistanceInOhmsQ23_8 is 80 ohms or less (negative), set to 0"));
+      ResistanceInOhmsQ23_8 = 0;
+    }
     
     R0ResistanceInTaps = ResistanceInOhmsQ23_8 / 10000;  // 10,000 / 256 = 39.0625 ohms per tap, converted to Q8 format it is 10,000 ohms/tap
     
@@ -140,16 +148,16 @@ uint8_t AmplifierClass::set(uint16_t VoltageInMvRms)
     DEBUG(F("Amplifier > 350: R1ResistanceInTaps calculated is: 0x"));
     DEBUGLN(R1ResistanceInTaps, HEX);
     
-    if (R1ResistanceInTaps > RPOT_MAX_DATA_VALUE)
+    if (R0ResistanceInTaps > RPOT_MAX_DATA_VALUE)
     {
       DEBUGLN(F("Amplifer > 350: Upper limit reached"));
-      R1ResistanceInTaps = RPOT_MAX_DATA_VALUE;
+      R0ResistanceInTaps = RPOT_MAX_DATA_VALUE;
     }
-    else if (R1ResistanceInTaps < 0x65)
+    else if (R0ResistanceInTaps < 0x0) // MJL: Was 0x65
     {
       // Below this value, the waveform looks pretty ugly
       DEBUGLN(F("Amplifer > 350: Lower limit reached"));
-      R1ResistanceInTaps = 0x65;
+      R0ResistanceInTaps = 0x0;
     }
     
     if (write(RPOT_MEMORY_MAP_VOLATILE_WIPER_0, RPOT_CMD_WRITE_DATA, R0ResistanceInTaps))
