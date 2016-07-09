@@ -6,22 +6,22 @@ DisplayClass Display;
 
 #define HELP_MENU_ROW_MAX  13
 
-const prog_char stringHelpMenu_1[] PROGMEM   = "Chirp by Lemtronix, LLC.";
-const prog_char stringHelpMenu_2[] PROGMEM   = "------------------------------";
-const prog_char stringHelpMenu_3[] PROGMEM   = "?   Help Menu";
-const prog_char stringHelpMenu_4[] PROGMEM   = "@   Version information";
-const prog_char stringHelpMenu_5[] PROGMEM   = "#   Reset Device";
-const prog_char stringHelpMenu_6[] PROGMEM   = "$   Bootloader Mode";
-const prog_char stringHelpMenu_7[] PROGMEM   = "v   View current output settings";
-const prog_char stringHelpMenu_8[] PROGMEM   = "s   Save output channel";
-const prog_char stringHelpMenu_9[] PROGMEM   = "f   Set Frequency";
-const prog_char stringHelpMenu_10[] PROGMEM  = "a   Set Amplitude";
-const prog_char stringHelpMenu_11[] PROGMEM  = "p   Set Phase";
-const prog_char stringHelpMenu_12[] PROGMEM  = "o/O Turn output (o)ff or (O)n";
-const prog_char stringHelpMenu_13[] PROGMEM  = "d/D Turn DAC filter off or on";
+const char stringHelpMenu_1[] PROGMEM   = "Chirp by Lemtronix, LLC.";
+const char stringHelpMenu_2[] PROGMEM   = "------------------------------";
+const char stringHelpMenu_3[] PROGMEM   = "?   Help Menu";
+const char stringHelpMenu_4[] PROGMEM   = "@   Version information";
+const char stringHelpMenu_5[] PROGMEM   = "#   Reset Device";
+const char stringHelpMenu_6[] PROGMEM   = "$   Bootloader Mode";
+const char stringHelpMenu_7[] PROGMEM   = "v   View current output settings";
+const char stringHelpMenu_8[] PROGMEM   = "s   Save output channel";
+const char stringHelpMenu_9[] PROGMEM   = "f   Set Frequency";
+const char stringHelpMenu_10[] PROGMEM  = "a   Set Amplitude";
+const char stringHelpMenu_11[] PROGMEM  = "p   Set Phase";
+const char stringHelpMenu_12[] PROGMEM  = "o/O Turn output (o)ff or (O)n";
+const char stringHelpMenu_13[] PROGMEM  = "d/D Turn DAC filter off or on";
 
-//const prog_char stringHelpMenu_7[] PROGMEM   = "c#  Select an output channel {1..5}";
-PROGMEM const char* helpMenu[] = 
+//const char stringHelpMenu_7[] PROGMEM   = "c#  Select an output channel {1..5}";
+PGM_P const helpMenu[] PROGMEM = 
 {
   stringHelpMenu_1,
   stringHelpMenu_2,
