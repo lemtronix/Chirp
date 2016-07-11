@@ -40,6 +40,10 @@ uint16_t OutputChannelClass::getPhaseDegrees(void)
 {
   return phaseDegrees;
 }
+WAVEFORM_T OutputChannelClass::getWaveform(void)
+{
+	return waveform;
+}
 boolean OutputChannelClass::getOutputStatus(void)
 {
   return outputStatus;

@@ -13,6 +13,7 @@ class DisplayClass
     void frequencyMenu();
     void amplitudeMenu();
     void phaseMenu();
+    void waveformMenu();
     void outputOff();
     void outputOn();
     void displayVersionInfo();

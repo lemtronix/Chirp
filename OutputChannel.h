@@ -15,6 +15,15 @@ typedef enum
   ERROR_MESSAGE_OTHER
 } ERROR_MESSAGE_T;
 
+typedef enum
+{
+	WAVEFORM_OFF=0,
+	WAVEFORM_SINE,
+	WAVEFORM_TRIANGLE,
+	WAVEFORM_SQUARE,
+	WAVEFORM_SQUARE_DIV_2
+} WAVEFORM_T;
+
 /// @brief Class for storing information about an output channel
 class OutputChannelClass
 {
@@ -26,6 +35,7 @@ class OutputChannelClass
     uint32_t getFrequencyHz(void);
     uint16_t getAmplitudeMV(void);
     uint16_t getPhaseDegrees(void);
+    WAVEFORM_T getWaveform(void);
     boolean getOutputStatus(void);
     ERROR_MESSAGE_T setFrequencyHz(uint32_t);
     ERROR_MESSAGE_T setAmplitudeMV(uint32_t);
@@ -36,6 +46,7 @@ class OutputChannelClass
     uint32_t frequencyHz;   //!< frequency in hz {0..8MHz}
     uint16_t amplitudeMV;    //!< magnitude of output in mV {100..4000mV}
     uint16_t phaseDegrees;   //!< phase angle {0..359degrees}
+    WAVEFORM_T waveform;
     boolean outputStatus;        //!< off or on
 };
 

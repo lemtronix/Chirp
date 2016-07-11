@@ -28,6 +28,7 @@ typedef enum
   MENU_SUB_FREQUENCY,
   MENU_SUB_AMPLITUDE,
   MENU_SUB_PHASE,
+  MENU_SUB_WAVEFORM,
   MENU_SUB_TEST
 } MENU_STATE_T;
 
@@ -47,6 +48,8 @@ char inputString[MAX_STRING_LENGTH];
 byte stringLength = 0;
 boolean stringComplete = false;
 unsigned long userInputUL;
+
+const char* errorSelectionInMenuString = "An error has occurred, please try again";
 
 OutputChannelClass* p_currentChannel;
 
@@ -134,6 +137,11 @@ void loop()
         Display.phaseMenu();
         menuState = MENU_SUB_PHASE;
       }
+      else if (strcmp(inputString, "w") == 0)
+      {
+    	  Display.waveformMenu();
+    	  menuState = MENU_SUB_WAVEFORM;
+      }
       else if (strcmp(inputString, "o") == 0)
       {
         p_currentChannel->setOutputStatus(OFF);
@@ -153,26 +161,6 @@ void loop()
       {
         Serial.println(F("DAC filter enabled"));
         Filter.on();
-      }
-      else if (strcmp(inputString, "ms") == 0)
-      {
-        Serial.println(F("Chirp sine"));
-        DDS.setOutputMode(DDS_MODE_SINE);
-      }
-      else if (strcmp(inputString, "mt") == 0)
-      {
-        Serial.println(F("Chirp triangle"));
-        DDS.setOutputMode(DDS_MODE_TRIANGLE);
-      }
-      else if (strcmp(inputString, "msq") == 0)
-      {
-        Serial.println(F("Chirp square"));
-        DDS.setOutputMode(DDS_MODE_SQUARE);
-      }
-      else if (strcmp(inputString, "msq2") == 0)
-      {
-        Serial.println(F("Chirp square div2"));
-        DDS.setOutputMode(DDS_MODE_SQUARE_DIV2);
       }
       else if (strcmp(inputString, "rs") == 0)
       {
@@ -218,7 +206,7 @@ void loop()
         if (p_currentChannel->setFrequencyHz(userInputUL))
         {
           //indicate ERROR and display retry message
-          Serial.println(F("An error has occurred, please try again"));
+          Serial.println(errorSelectionInMenuString);
         }
         else
         {
@@ -244,7 +232,7 @@ void loop()
         if (p_currentChannel->setAmplitudeMV(userInputUL))
         {
           //indicate ERROR and display retry message
-          Serial.println("An error has occurred, please try again");
+          Serial.println(errorSelectionInMenuString);
         }
         else
         {
@@ -270,7 +258,7 @@ void loop()
         if (p_currentChannel->setPhaseDegrees(userInputUL))
         {
           //indicate ERROR and display retry message
-          Serial.println(F("An error has occurred, please try again"));
+        	Serial.println(errorSelectionInMenuString);
         }
         else
         {
@@ -284,6 +272,68 @@ void loop()
         }
       }
     }
+    else if (menuState == MENU_SUB_WAVEFORM)
+    {
+    	// TODO Make this menu not case sensitive: use tolower()?
+
+        if (strcmp(inputString, "x") == 0 || strcmp(inputString, "") == 0)
+        {
+          // Exit menu if an 'x' is sent or enter key only
+          Display.mainMenu();
+          menuState = MENU_MAIN;
+        }
+        else if (strstr(inputString, "sin") != NULL)
+        {
+        	// Sine wave
+        	DEBUGLN(F("Sine wave selected"));
+        }
+        else if (strstr(inputString, "tri") != NULL)
+		{
+        	// Triangle wave
+        	DEBUGLN(F("Triangle wave selected"));
+		}
+        else if (strstr(inputString, "sq") != NULL)
+		{
+        	// Square wave
+        	DEBUGLN(F("Square wave selected"));
+		}
+        else if ((strcmp(inputString, "sq") != NULL) && (strcmp(inputString, "2") != NULL))
+		{
+        	// Square wave divide by 2
+        	DEBUGLN(F("Square wave div 2 selected"));
+		}
+        else
+        {
+        	Serial.println(errorSelectionInMenuString);
+        }
+#if 0
+        else if (strcmp(inputString, "ms") == 0)
+        {
+          Serial.println(F("Chirp sine"));
+          DDS.setOutputMode(DDS_MODE_SINE);
+        }
+        else if (strcmp(inputString, "mt") == 0)
+        {
+          Serial.println(F("Chirp triangle"));
+          DDS.setOutputMode(DDS_MODE_TRIANGLE);
+        }
+        else if (strcmp(inputString, "msq") == 0)
+        {
+          Serial.println(F("Chirp square"));
+          DDS.setOutputMode(DDS_MODE_SQUARE);
+        }
+        else if (strcmp(inputString, "msq2") == 0)
+        {
+          Serial.println(F("Chirp square div2"));
+          DDS.setOutputMode(DDS_MODE_SQUARE_DIV2);
+        }
+#endif
+
+    }
+    else
+    {
+    	// No item found
+    }
     
     // Print the command prompt
     /// @todo make it so that the command prompt doesn't print when setting 
@@ -293,6 +343,8 @@ void loop()
     Serial.print(p_currentChannel->getAmplitudeMV());
     Serial.print("P");
     Serial.print(p_currentChannel->getPhaseDegrees());
+    Serial.print("W");
+    Serial.print(p_currentChannel->getWaveform());
     p_currentChannel->getOutputStatus() == ON ? Serial.print("on") : Serial.print("off");
     Serial.print(">");
     
