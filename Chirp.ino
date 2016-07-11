@@ -19,7 +19,7 @@
 #define ASCII_CR       0x0D
 #define ASCII_ESC      0x1B
 
-#define MAX_STRING_LENGTH  8
+#define MAX_STRING_LENGTH  12
 
 /// @brief Keeps the location of the display menu
 typedef enum
@@ -101,6 +101,7 @@ void loop()
       else if (strcmp(inputString, "#") == 0)
       {
         Display.resetDevice();
+        // TODO update DDS.reset to take a reference to OutputChannelClass* to the reset to clear out the console status
         DDS.reset();
       }
       else if (strcmp(inputString, "$") == 0)
@@ -285,50 +286,40 @@ void loop()
         else if (strstr(inputString, "sin") != NULL)
         {
         	// Sine wave
-        	DEBUGLN(F("Sine wave selected"));
+        	Serial.println(F("Chirp sine"));
+          DDS.setOutputMode(DDS_MODE_SINE);
+          p_currentChannel->setWaveform(WAVEFORM_SINE);
+          menuState = MENU_MAIN;
         }
         else if (strstr(inputString, "tri") != NULL)
-		{
+		    {
         	// Triangle wave
-        	DEBUGLN(F("Triangle wave selected"));
-		}
+          Serial.println(F("Chirp triangle"));
+          DDS.setOutputMode(DDS_MODE_TRIANGLE);
+          p_currentChannel->setWaveform(WAVEFORM_TRIANGLE);
+          menuState = MENU_MAIN;
+		    }
+        else if ((strstr(inputString, "sq") != NULL) && (strstr(inputString, "2") != NULL))
+       {
+          // Square wave divide by 2
+          Serial.println(F("Chirp square div2"));
+          DDS.setOutputMode(DDS_MODE_SQUARE_DIV2);
+          p_currentChannel->setWaveform(WAVEFORM_SQUARE_DIV_2);
+          menuState = MENU_MAIN;
+        }
         else if (strstr(inputString, "sq") != NULL)
-		{
+		    {
         	// Square wave
-        	DEBUGLN(F("Square wave selected"));
-		}
-        else if ((strcmp(inputString, "sq") != NULL) && (strcmp(inputString, "2") != NULL))
-		{
-        	// Square wave divide by 2
-        	DEBUGLN(F("Square wave div 2 selected"));
-		}
+          Serial.println(F("Chirp square"));
+          DDS.setOutputMode(DDS_MODE_SQUARE);
+          p_currentChannel->setWaveform(WAVEFORM_SQUARE);
+          menuState = MENU_MAIN;
+		    }
         else
         {
         	Serial.println(errorSelectionInMenuString);
+          Display.waveformMenu();
         }
-#if 0
-        else if (strcmp(inputString, "ms") == 0)
-        {
-          Serial.println(F("Chirp sine"));
-          DDS.setOutputMode(DDS_MODE_SINE);
-        }
-        else if (strcmp(inputString, "mt") == 0)
-        {
-          Serial.println(F("Chirp triangle"));
-          DDS.setOutputMode(DDS_MODE_TRIANGLE);
-        }
-        else if (strcmp(inputString, "msq") == 0)
-        {
-          Serial.println(F("Chirp square"));
-          DDS.setOutputMode(DDS_MODE_SQUARE);
-        }
-        else if (strcmp(inputString, "msq2") == 0)
-        {
-          Serial.println(F("Chirp square div2"));
-          DDS.setOutputMode(DDS_MODE_SQUARE_DIV2);
-        }
-#endif
-
     }
     else
     {
@@ -337,15 +328,15 @@ void loop()
     
     // Print the command prompt
     /// @todo make it so that the command prompt doesn't print when setting 
+    Serial.print(p_currentChannel->getWaveform());
+    Serial.print(":");
     Serial.print("F");
     Serial.print(p_currentChannel->getFrequencyHz());
     Serial.print("A");
     Serial.print(p_currentChannel->getAmplitudeMV());
     Serial.print("P");
     Serial.print(p_currentChannel->getPhaseDegrees());
-    Serial.print("W");
-    Serial.print(p_currentChannel->getWaveform());
-    p_currentChannel->getOutputStatus() == ON ? Serial.print("on") : Serial.print("off");
+    p_currentChannel->getOutputStatus() == ON ? Serial.print("ON") : Serial.print("OFF");
     Serial.print(">");
     
     // Clear the string and reset the counters

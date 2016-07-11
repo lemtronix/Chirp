@@ -1,6 +1,7 @@
 #ifndef DDS_h
 #define DDS_h
 
+// TODO ddsMode_t is the same was WAVEFORM_T, consolidate these
 typedef enum
 {
   DDS_MODE_SINE = 0,

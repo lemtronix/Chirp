@@ -5,6 +5,12 @@
 #include "Debug.h"
 #define DEBUG_OUTPUT 1
 
+const char waveformOffString[] = "OFF";
+const char waveformSineString[] = "SIN";
+const char waveformTriangleString[] = "TRI";
+const char waveformSquareString[] = "SQ";
+const char waveformSquare2String[] = "SQ2";
+
 OutputChannelClass::OutputChannelClass(unsigned char cNumber)
 {
   channelNumber = cNumber;
@@ -40,9 +46,29 @@ uint16_t OutputChannelClass::getPhaseDegrees(void)
 {
   return phaseDegrees;
 }
-WAVEFORM_T OutputChannelClass::getWaveform(void)
+const char* OutputChannelClass::getWaveform(void)
 {
-	return waveform;
+  const char* waveformName = NULL;
+  
+  // TODO use FLASH memory instead of RAM
+  switch (waveform)
+  {
+    case WAVEFORM_SINE:
+      waveformName = waveformSineString;
+    break;
+    case WAVEFORM_TRIANGLE:
+      waveformName = waveformTriangleString;
+      return "TRI";
+    break;
+    case WAVEFORM_SQUARE:
+      waveformName = waveformSquareString;
+    break;
+    case WAVEFORM_SQUARE_DIV_2:
+      waveformName = waveformSquare2String;
+    break;
+  }
+  
+	return waveformName;
 }
 boolean OutputChannelClass::getOutputStatus(void)
 {
@@ -124,6 +150,31 @@ ERROR_MESSAGE_T OutputChannelClass::setPhaseDegrees(uint32_t newPhaseDegrees)
   else
   {
     error = ERROR_MESSAGE_OTHER;
+  }
+  return error;
+}
+ERROR_MESSAGE_T OutputChannelClass::setWaveform(WAVEFORM_T newWaveform)
+{
+  ERROR_MESSAGE_T error = ERROR_MESSAGE_UNKNOWN;
+  
+  switch (newWaveform)
+  {
+    case WAVEFORM_SINE:
+      error = SUCCESS;
+      waveform = WAVEFORM_SINE;
+    break;
+    case WAVEFORM_TRIANGLE:
+      error = SUCCESS;
+      waveform = WAVEFORM_TRIANGLE;
+    break;
+    case WAVEFORM_SQUARE:
+      error = SUCCESS;
+      waveform = WAVEFORM_SQUARE;
+    break;
+    case WAVEFORM_SQUARE_DIV_2:
+      error = SUCCESS;
+      waveform = WAVEFORM_SQUARE_DIV_2;
+    break;
   }
   return error;
 }

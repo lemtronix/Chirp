@@ -17,11 +17,10 @@ typedef enum
 
 typedef enum
 {
-	WAVEFORM_OFF=0,
-	WAVEFORM_SINE,
-	WAVEFORM_TRIANGLE,
-	WAVEFORM_SQUARE,
-	WAVEFORM_SQUARE_DIV_2
+  WAVEFORM_SINE=0,
+  WAVEFORM_TRIANGLE,
+  WAVEFORM_SQUARE,
+  WAVEFORM_SQUARE_DIV_2
 } WAVEFORM_T;
 
 /// @brief Class for storing information about an output channel
@@ -35,11 +34,12 @@ class OutputChannelClass
     uint32_t getFrequencyHz(void);
     uint16_t getAmplitudeMV(void);
     uint16_t getPhaseDegrees(void);
-    WAVEFORM_T getWaveform(void);
+    const char* getWaveform(void);
     boolean getOutputStatus(void);
     ERROR_MESSAGE_T setFrequencyHz(uint32_t);
     ERROR_MESSAGE_T setAmplitudeMV(uint32_t);
     ERROR_MESSAGE_T setPhaseDegrees(uint32_t);
+    ERROR_MESSAGE_T setWaveform(WAVEFORM_T);
     ERROR_MESSAGE_T setOutputStatus(boolean);
   private:
     uint8_t channelNumber; //!< channel number {1..5}
