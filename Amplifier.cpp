@@ -7,7 +7,7 @@
 #include <Wire.h>
 #include "Amplifier.h"
 #include "Debug.h"
-#define DEBUG_OUTPUT 1
+#define DEBUG_OUTPUT 0
 
 typedef int32_t q23_8_t; ///< resolution is 0.00390625
 
