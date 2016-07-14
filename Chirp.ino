@@ -462,7 +462,7 @@ void serialEvent()
         if ((incomingChar == ASCII_CR) || (incomingChar == ASCII_LF))
         {
             stringComplete = true;
-            Serial.write('\n');
+            Serial.print("\n\r");
         }
         else if ((incomingChar == ASCII_BS) || (incomingChar == ASCII_DEL))
         {
