@@ -59,6 +59,9 @@ char inputString[MAX_STRING_LENGTH];
 byte stringLength = 0;
 boolean stringComplete = false;
 
+// TODO rename this variable?
+boolean useQuickCommandsOnly = false;   // This suppresses the menu after an invalid selection and does not allow for sub-menus.. Mainly used for advanced users and to simplify the GUI application
+
 // TODO move this into flash
 const char* errorSelectionInMenuString = "An error has occurred, please try again";
 
@@ -106,9 +109,13 @@ void loop()
             // TODO look into only executing this if the string length is over a certain limit ?2?
             remainingCharacters = strtok(inputString, firstCharacter);
 
-            if (strcmp(firstCharacter, "?") == 0)
+            if ((strcmp(firstCharacter, "?") == 0) || (strstr(inputString, "help") != NULL))
             {
                 Display.mainMenu();
+            }
+            else if (strcmp(firstCharacter, "%") == 0)
+            {
+                useQuickCommandsOnly = !useQuickCommandsOnly;
             }
             else if (strcmp(firstCharacter, "@") == 0)
             {
@@ -145,6 +152,10 @@ void loop()
                         Serial.println(errorSelectionInMenuString);
                     }
                 }
+                else if (useQuickCommandsOnly)
+                {
+                    // The user requested quick commands but did not provide a full command, do NOT show the submenu and error silently
+                }
                 else
                 {
                     // Not a quick command, display the submenu
@@ -165,6 +176,10 @@ void loop()
                         Serial.println(errorSelectionInMenuString);
                     }
                 }
+                else if (useQuickCommandsOnly)
+                {
+                    // The user requested quick commands but did not provide a full command, do NOT show the submenu and error silently
+                }
                 else
                 {
                     Display.amplitudeMenu();
@@ -184,6 +199,10 @@ void loop()
                         Serial.println(errorSelectionInMenuString);
                     }
                 }
+                else if (useQuickCommandsOnly)
+                {
+                    // The user requested quick commands but did not provide a full command, do NOT show the submenu and error silently
+                }
                 else
                 {
                     Display.phaseMenu();
@@ -201,6 +220,10 @@ void loop()
                         menuState = MENU_SUB_WAVEFORM;
                     }
                 }
+                else if (useQuickCommandsOnly)
+                {
+                    // The user requested quick commands but did not provide a full command, do NOT show the submenu and error silently
+                }
                 else
                 {
                     // Otherwise, only one character typed
@@ -210,13 +233,21 @@ void loop()
             }
             else if (strcmp(firstCharacter, "o") == 0)
             {
+                if (useQuickCommandsOnly == false)
+                {
+                    Display.outputOff();
+                }
+
                 p_currentChannel->setOutputStatus(OFF);
-                Display.outputOff();
             }
             else if (strcmp(firstCharacter, "O") == 0)
             {
+                if (useQuickCommandsOnly == false)
+                {
+                    Display.outputOn();
+                }
+
                 p_currentChannel->setOutputStatus(ON);
-                Display.outputOn();
             }
             else if (strcmp(firstCharacter, "d") == 0)
             {
@@ -250,9 +281,15 @@ void loop()
 //      }
             else
             {
+                // Invalid selection
                 Display.invalidSelection();
-                Display.mainMenu();
                 menuState = MENU_MAIN;
+
+                if (useQuickCommandsOnly == false)
+                {
+                    // Only display the mainmenu after an invalid selection if use quick commands is off
+                    Display.mainMenu();
+                }
             }
         }
         else if (menuState == MENU_SUB_FREQUENCY)
@@ -378,6 +415,8 @@ void loop()
 
 void printVerboseStatus(void)
 {
+    Serial.print(F("Quick Commands Only: "));
+    useQuickCommandsOnly == true ? Serial.println(F("Yes")) : Serial.println(F("No"));
     Serial.print(F("Frequency: "));
     Serial.println(p_currentChannel->getFrequencyHz());
     Serial.print(F("Amplitude: "));
@@ -385,18 +424,26 @@ void printVerboseStatus(void)
     Serial.print(F("Phase: "));
     Serial.println(p_currentChannel->getPhaseDegrees());
     Serial.print(F("Output: "));
-    p_currentChannel->getOutputStatus() == ON ? Serial.println("On") : Serial.println("Off");
+    p_currentChannel->getOutputStatus() == ON ? Serial.println(F("On")) : Serial.println(F("Off"));
 }
 
 // Print the command prompt in the form WAVEFORM:F#A#P#_OUTPUT>
 void printStatusLine(void)
 {
+    if (useQuickCommandsOnly)
+    {
+        // Write a ! first if quick commands only is set
+        Serial.write('!');
+    }
+
     Serial.print(p_currentChannel->getWaveform());
-    Serial.write(':');
+    Serial.write('_');
     Serial.write('F');
     Serial.print(p_currentChannel->getFrequencyHz());
+    Serial.write('_');
     Serial.write('A');
     Serial.print(p_currentChannel->getAmplitudeMV());
+    Serial.write('_');
     Serial.write('P');
     Serial.print(p_currentChannel->getPhaseDegrees());
     Serial.write('_');
