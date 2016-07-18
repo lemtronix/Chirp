@@ -433,7 +433,8 @@ void printStatusLine(void)
     if (useQuickCommandsOnly)
     {
         // Write a ! first if quick commands only is set
-        Serial.write('!');
+        Serial.write('Q');
+        Serial.write('_');
     }
 
     Serial.print(p_currentChannel->getWaveform());
