@@ -3,7 +3,7 @@
 #include <Wire.h> // used in Amplifier.cpp
 #include "Display.h"
 #include "OutputChannel.h"
-#include "DDS.h" // used by OutputChannel.cpp
+#include "DDS.h" // used by OutputChannel.cpp; TODO move this into output channel only
 #include "Amplifier.h" // used by OutputChannel.cpp
 #include "Filter.h"
 #include "Debug.h"
@@ -259,26 +259,26 @@ void loop()
                 Serial.println(F("DAC filter enabled"));
                 Filter.on();
             }
-//      else if (strcmp(inputString, "rs") == 0)
-//      {
-//        Serial.println(F("Amplifier Status:"));
-//        Amplifier.printStatus();
-//      }
-//      else if (strcmp(inputString, "rt") == 0)
-//      {
-//        Serial.println(F("Amplifier Tcon Status:"));
-//        Amplifier.printTcon();
-//      }
-//      else if (strcmp(inputString, "r0") == 0)
-//      {
-//        Serial.println(F("Amplifier1 Value:"));
-//        Amplifier.printPotValue(0);
-//      }
-//      else if (strcmp(inputString, "r1") == 0)
-//      {
-//        Serial.println(F("Amplifier2 Value:"));
-//        Amplifier.printPotValue(1);
-//      }
+            else if (strcmp(inputString, "rs") == 0)
+            {
+                Serial.println(F("Amplifier Status:"));
+                Amplifier.printStatus();
+            }
+            else if (strcmp(inputString, "rt") == 0)
+            {
+                Serial.println(F("Amplifier Tcon Status:"));
+                Amplifier.printTcon();
+            }
+            else if (strcmp(inputString, "r0") == 0)
+            {
+                Serial.println(F("Amplifier1 Value:"));
+                Amplifier.printPotValue(0);
+            }
+            else if (strcmp(inputString, "r1") == 0)
+            {
+                Serial.println(F("Amplifier2 Value:"));
+                Amplifier.printPotValue(1);
+            }
             else
             {
                 // Invalid selection
@@ -465,7 +465,6 @@ MENU_RESULT_T setWaveformMenu(char* waveformToSet)
     {
         // Sine wave
         DEBUGLN(F("Chirp sine"));
-        DDS.setOutputMode(DDS_MODE_SINE);
         p_currentChannel->setWaveform(WAVEFORM_SINE);
         wasAbleToSetWaveform = MENU_RESULT_SUCCESS;
     }
@@ -473,7 +472,6 @@ MENU_RESULT_T setWaveformMenu(char* waveformToSet)
     {
         // Triangle wave
         DEBUGLN(F("Chirp triangle"));
-        DDS.setOutputMode(DDS_MODE_TRIANGLE);
         p_currentChannel->setWaveform(WAVEFORM_TRIANGLE);
         wasAbleToSetWaveform = MENU_RESULT_SUCCESS;
     }
@@ -481,7 +479,6 @@ MENU_RESULT_T setWaveformMenu(char* waveformToSet)
     {
         // Square wave divide by 2
         DEBUGLN(F("Chirp square div2"));
-        DDS.setOutputMode(DDS_MODE_SQUARE_DIV2);
         p_currentChannel->setWaveform(WAVEFORM_SQUARE_DIV_2);
         wasAbleToSetWaveform = MENU_RESULT_SUCCESS;
     }
@@ -489,7 +486,6 @@ MENU_RESULT_T setWaveformMenu(char* waveformToSet)
     {
         // Square wave
         DEBUGLN(F("Chirp square"));
-        DDS.setOutputMode(DDS_MODE_SQUARE);
         p_currentChannel->setWaveform(WAVEFORM_SQUARE);
         wasAbleToSetWaveform = MENU_RESULT_SUCCESS;
     }

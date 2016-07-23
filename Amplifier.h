@@ -5,6 +5,7 @@
 #define Amplifier_h
 
 #include "Arduino.h"
+#include "OutputChannel.h"
 
 typedef enum
 {
@@ -33,7 +34,7 @@ class AmplifierClass
     AmplifierClass();
     ~AmplifierClass();
     void init();
-    uint8_t set(uint16_t VoltageInMvRms);
+    uint8_t set(uint16_t VoltageInMvRms, WAVEFORM_T waveform);
     void printStatus();
     void printTcon();
     void printPotValue(uint8_t RpotNumber);

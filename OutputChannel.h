@@ -37,8 +37,9 @@ class OutputChannelClass
     const char* getWaveform(void);
     boolean getOutputStatus(void);
     ERROR_MESSAGE_T setFrequencyHz(uint32_t);
-    ERROR_MESSAGE_T setAmplitudeMV(uint32_t);
-    ERROR_MESSAGE_T setPhaseDegrees(uint32_t);
+    ERROR_MESSAGE_T setAmplitudeMV();
+    ERROR_MESSAGE_T setAmplitudeMV(uint16_t);
+    ERROR_MESSAGE_T setPhaseDegrees(uint16_t);
     ERROR_MESSAGE_T setWaveform(WAVEFORM_T);
     ERROR_MESSAGE_T setOutputStatus(boolean);
   private:
