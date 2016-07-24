@@ -58,7 +58,6 @@ const char* OutputChannelClass::getWaveform(void)
         break;
         case WAVEFORM_TRIANGLE:
             waveformName = waveformTriangleString;
-            return "TRI";
         break;
         case WAVEFORM_SQUARE:
             waveformName = waveformSquareString;
@@ -70,7 +69,7 @@ const char* OutputChannelClass::getWaveform(void)
 
     return waveformName;
 }
-boolean OutputChannelClass::getOutputStatus(void)
+OUTPUT_STATUS_T OutputChannelClass::getOutputStatus(void)
 {
     return outputStatus;
 }
@@ -174,6 +173,7 @@ ERROR_MESSAGE_T OutputChannelClass::setPhaseDegrees(uint16_t newPhaseDegrees)
 ERROR_MESSAGE_T OutputChannelClass::setWaveform(WAVEFORM_T newWaveform)
 {
     ERROR_MESSAGE_T error = ERROR_MESSAGE_UNKNOWN;
+    OUTPUT_STATUS_T previousOutputStatus = getOutputStatus();
 
     // Toggle the waveform off, then set the amplitude, then
     switch (newWaveform)
@@ -184,7 +184,7 @@ ERROR_MESSAGE_T OutputChannelClass::setWaveform(WAVEFORM_T newWaveform)
             setOutputStatus(OFF);
             DDS.setOutputMode(DDS_MODE_SINE);
             setAmplitudeMV();
-            setOutputStatus(ON);
+            setOutputStatus(previousOutputStatus);
         break;
         case WAVEFORM_TRIANGLE:
             error = SUCCESS;
@@ -192,7 +192,7 @@ ERROR_MESSAGE_T OutputChannelClass::setWaveform(WAVEFORM_T newWaveform)
             setOutputStatus(OFF);
             DDS.setOutputMode(DDS_MODE_TRIANGLE);
             setAmplitudeMV();
-            setOutputStatus(ON);
+            setOutputStatus(previousOutputStatus);
         break;
         case WAVEFORM_SQUARE:
             error = SUCCESS;
@@ -200,7 +200,7 @@ ERROR_MESSAGE_T OutputChannelClass::setWaveform(WAVEFORM_T newWaveform)
             setOutputStatus(OFF);
             DDS.setOutputMode(DDS_MODE_SQUARE);
             setAmplitudeMV();
-            setOutputStatus(ON);
+            setOutputStatus(previousOutputStatus);
         break;
         case WAVEFORM_SQUARE_DIV_2:
             error = SUCCESS;
@@ -208,28 +208,48 @@ ERROR_MESSAGE_T OutputChannelClass::setWaveform(WAVEFORM_T newWaveform)
             setOutputStatus(OFF);
             DDS.setOutputMode(DDS_MODE_SQUARE_DIV2);
             setAmplitudeMV();
-            setOutputStatus(ON);
+            setOutputStatus(previousOutputStatus);
         break;
     }
     return error;
 }
-ERROR_MESSAGE_T OutputChannelClass::setOutputStatus(boolean newOutputStatus)
+ERROR_MESSAGE_T OutputChannelClass::setOutputStatus(OUTPUT_STATUS_T newOutputStatus)
 {
     ERROR_MESSAGE_T error = ERROR_MESSAGE_UNKNOWN;
+
     if (newOutputStatus == ON)
     {
         outputStatus = ON;
         DDS.setOutput(DDS_ON);
+        error = SUCCESS;
     }
     else if (newOutputStatus == OFF)
     {
         outputStatus = OFF;
         DDS.setOutput(DDS_OFF);
+        error = SUCCESS;
     }
     else
     {
         error = ERROR_MESSAGE_OTHER;
     }
+
     return error;
 }
 
+// Called when a device reset is requested.  The DDS chip turns the frequency, amplitude, phase, waveform back to defaults
+// and we need to make sure the channel reflects the state of the DDS chip
+// TODO currently not handling any error conditions...
+ERROR_MESSAGE_T OutputChannelClass::reset()
+{
+    ERROR_MESSAGE_T error = ERROR_MESSAGE_UNKNOWN;
+
+    setOutputStatus(OFF);
+    setFrequencyHz(0);
+    setAmplitudeMV(0);
+    setPhaseDegrees(0);
+    setWaveform(WAVEFORM_SINE);
+
+    error = SUCCESS;
+    return error;
+}

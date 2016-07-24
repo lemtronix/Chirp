@@ -125,7 +125,9 @@ void loop()
             {
                 Display.resetDevice();
                 // TODO update DDS.reset to take a reference to OutputChannelClass* to the reset to clear out the console status
+                // or issue a reset to the output channel directly via p_currentChannel->reset())
                 DDS.reset();
+                p_currentChannel->reset();
             }
             else if (strcmp(firstCharacter, "$") == 0)
             {
@@ -233,20 +235,10 @@ void loop()
             }
             else if (strcmp(firstCharacter, "o") == 0)
             {
-                if (useQuickCommandsOnly == false)
-                {
-                    Display.outputOff();
-                }
-
                 p_currentChannel->setOutputStatus(OFF);
             }
             else if (strcmp(firstCharacter, "O") == 0)
             {
-                if (useQuickCommandsOnly == false)
-                {
-                    Display.outputOn();
-                }
-
                 p_currentChannel->setOutputStatus(ON);
             }
             else if (strcmp(firstCharacter, "d") == 0)
@@ -424,7 +416,7 @@ void printVerboseStatus(void)
     Serial.print(F("Phase: "));
     Serial.println(p_currentChannel->getPhaseDegrees());
     Serial.print(F("Output: "));
-    p_currentChannel->getOutputStatus() == ON ? Serial.println(F("On")) : Serial.println(F("Off"));
+    (p_currentChannel->getOutputStatus() == ON) ? Serial.println(F("On")) : Serial.println(F("Off"));
 }
 
 // Print the command prompt in the form WAVEFORM:F#A#P#_OUTPUT>
@@ -448,7 +440,7 @@ void printStatusLine(void)
     Serial.write('P');
     Serial.print(p_currentChannel->getPhaseDegrees());
     Serial.write('_');
-    p_currentChannel->getOutputStatus() == ON ? Serial.print("ON") : Serial.print("OFF");
+    (p_currentChannel->getOutputStatus() == ON) ? Serial.print("ON") : Serial.print("OFF");
     Serial.write('>');
 }
 
