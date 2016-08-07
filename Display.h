@@ -9,7 +9,6 @@ class DisplayClass
     void mainMenu();
     void testMenu();
     void resetDevice();
-    void bootLoaderMode();
     void frequencyMenu();
     void amplitudeMenu();
     void phaseMenu();

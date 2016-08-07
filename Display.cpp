@@ -4,22 +4,20 @@
 
 DisplayClass Display;
 
-#define HELP_MENU_ROW_MAX  14
+#define HELP_MENU_ROW_MAX  12
 
-const char stringHelpMenu_1[] PROGMEM   = "Chirp by Lemtronix, LLC.";
+const char stringHelpMenu_1[] PROGMEM   = "Chirp - A lightweight function generator";
 const char stringHelpMenu_2[] PROGMEM   = "------------------------------";
 const char stringHelpMenu_3[] PROGMEM   = "?   Help Menu";
 const char stringHelpMenu_4[] PROGMEM   = "@   Version information";
 const char stringHelpMenu_5[] PROGMEM   = "#   Reset Device";
-const char stringHelpMenu_6[] PROGMEM   = "$   Bootloader Mode (dep)";
-const char stringHelpMenu_7[] PROGMEM   = "v   View current output settings";
-const char stringHelpMenu_8[] PROGMEM   = "s   Save output channel (dep)";
-const char stringHelpMenu_9[] PROGMEM   = "f   Set Frequency";
-const char stringHelpMenu_10[] PROGMEM  = "a   Set Amplitude";
-const char stringHelpMenu_11[] PROGMEM  = "p   Set Phase";
-const char stringHelpMenu_12[] PROGMEM  = "w   Set Waveform";
-const char stringHelpMenu_13[] PROGMEM  = "o/O Turn output (o)ff or (O)n";
-const char stringHelpMenu_14[] PROGMEM  = "d/D Turn DAC filter off or on (dep)";
+const char stringHelpMenu_6[] PROGMEM   = "v   View current output settings";
+const char stringHelpMenu_7[] PROGMEM   = "f   Set Frequency";
+const char stringHelpMenu_8[] PROGMEM  = "a   Set Amplitude";
+const char stringHelpMenu_9[] PROGMEM  = "p   Set Phase";
+const char stringHelpMenu_10[] PROGMEM  = "w   Set Waveform";
+const char stringHelpMenu_11[] PROGMEM  = "o/O Turn output (o)ff or (O)n";
+const char stringHelpMenu_12[] PROGMEM  = "d/D Turn DAC filter off or on (dep)";
 
 //const char stringHelpMenu_7[] PROGMEM   = "c#  Select an output channel {1..5}";
 PGM_P const helpMenu[] PROGMEM = 
@@ -36,8 +34,6 @@ PGM_P const helpMenu[] PROGMEM =
   stringHelpMenu_10,
   stringHelpMenu_11,
   stringHelpMenu_12,
-  stringHelpMenu_13,
-  stringHelpMenu_14,
 };
 
 char buffer[48];
@@ -64,10 +60,6 @@ void DisplayClass::mainMenu()
 void DisplayClass::resetDevice()
 {
   print_P(PSTR("Resetting the device..."));
-}
-void DisplayClass::bootLoaderMode()
-{
-  print_P(PSTR("Entering boot loader mode"));
 }
 void DisplayClass::frequencyMenu()
 {

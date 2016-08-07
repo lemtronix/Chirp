@@ -129,14 +129,6 @@ void loop()
                 DDS.reset();
                 p_currentChannel->reset();
             }
-            else if (strcmp(firstCharacter, "$") == 0)
-            {
-                Display.bootLoaderMode();
-            }
-            else if (strcmp(firstCharacter, "s") == 0)
-            {
-                Serial.println(F("Saving channel..."));
-            }
             else if (strcmp(firstCharacter, "v") == 0)
             {
                 printVerboseStatus();
