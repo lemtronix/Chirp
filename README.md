@@ -18,7 +18,7 @@
 ![Image](https://cdn.hackaday.io/images/4316181470572404129.png)
 
 ### GUI
-Project available at: https://github.com/lemtronix/ChirpUI
+Project available [here](https://github.com/lemtronix/ChirpUI).
 
 ![Image](https://cdn.hackaday.io/images/5565001470571751440.png)
 
